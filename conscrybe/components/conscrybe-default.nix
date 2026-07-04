@@ -11,7 +11,7 @@
           # directly unless we use the module system.
           # The easiest way in a dendritic flake for a meta-package is to
           # just call the lib file.
-          (pkgs.callPackage ./orchestrator/package.lib { })
+          (pkgs.callPackage ./orchestrator/orchestrator-package.nix { })
           pkgs.sox
           pkgs.wl-clipboard
           pkgs.llm
