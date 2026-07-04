@@ -1,0 +1,29 @@
+{ pkgs, ... }:
+
+let
+  pyPackages = pkgs.python3Packages;
+in
+pkgs.pythonPackages.buildPythonApplication {
+  pname = "conscrybe-orchestrator";
+  version = "0.1.0";
+
+  src = ./.;
+
+  propagatedBuildInputs = with pyPackages; [
+    pyside6
+  ];
+
+  doCheck = false;
+
+  installPhase = ''
+    mkdir -p $out/bin
+    cp src/gui.py $out/bin/conscrybe
+    chmod +x $out/bin/conscrybe
+
+    cp src/cli.py $out/bin/conscrybe-cli
+    chmod +x $out/bin/conscrybe-cli
+
+    mkdir -p $out/lib/python3.11/site-packages/conscrybe
+    cp src/*.py $out/lib/python3.11/site-packages/conscrybe/
+  '';
+}
