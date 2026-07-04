@@ -5,8 +5,10 @@
       orchestrator = pkgs.python3Packages.buildPythonApplication {
         pname = "conscrybe-orchestrator";
         version = "0.1.0";
+        pyproject = true;
+        build-system = [ pkgs.python3Packages.setuptools ];
 
-        src = ./.;
+        src = ../src/orchestrator;
 
         propagatedBuildInputs = [ pkgs.python3Packages.pyside6 ];
 
