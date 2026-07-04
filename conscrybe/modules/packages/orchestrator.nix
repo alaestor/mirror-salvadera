@@ -1,4 +1,4 @@
-{ ... }:
+{ inputs, ... }:
 {
   perSystem = { pkgs, ... }: {
     packages = {
@@ -8,7 +8,7 @@
         pyproject = true;
         build-system = [ pkgs.python3Packages.setuptools ];
 
-        src = ../src/orchestrator;
+        src = "${inputs.self}/src/orchestrator";
 
         propagatedBuildInputs = [ pkgs.python3Packages.pyside6 ];
 
