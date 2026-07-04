@@ -13,11 +13,12 @@ A *dendritic* flake organizes configuration as a tree of small feature-specific 
 - **`import-tree`** — recursively discovers and imports every `.nix` file under a directory, so adding/removing a module is just a file operation (no merge conflicts in import lists).
 - **`flake-file`** — generates `flake.nix` from Nix module options, so inputs and outputs are declared *inside* modules using the real Nix language rather than hand-edited in `flake.nix`. 
 
-Typically, import-tree is used to recursively import everything from `./modules/`, though project structures differ.
+Import-tree is used to recursively import every `*.nix` file from `modules/`.
 
 You can run `nix flake show` during development to verify that your modules are correctly contributing to the flake's outputs and to catch evaluation errors early.
 
 ### Avoid legacy patterns
+
 Non-dendritic patterns, such as a `default.nix` containing `callPackage ./package.nix`, should be avoided. `import-tree` expects all `*.nix` files in the module tree path to be `flake-parts` modules; in-tree references like this will cause errors. If you require such patterns, consult the user about creating an out-of-tree place for `.nix` files (referrable by `${inputs.self}/otherfolder/file.nix`)
 
 ### Defining inputs in any module
@@ -57,7 +58,6 @@ If the flake enters a bad state due to invalid inputs or corrupted configuration
 ```nix
 # minimal bootstrap flake
 {
-  # may vary slightly project-to-project; particularily the path
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 
   inputs = {
