@@ -65,9 +65,9 @@ To enable detailed output during development, set the `ALCE_VERBOSE` environment
 When migrating monolithic code from `alcelib.lua` to modular `src/*.lua` files, follow these documentation patterns to support the project's structured documentation system.
 
 ### Table Documentation (`__doc`)
-- **Iterated Tables**: For "data" tables that are iterated using `pairs`, avoid adding metadata keys. Instead, consolidate descriptions of subtables into a bulleted list within the main table's `__doc` field.
+- **Iterated Tables**: For "data" tables that are intended to be iterated using `pairs` (e.g. a map of values), avoid adding metadata keys like `__doc` as they will interfere with iteration. Instead, consolidate descriptions of the table's contents or subtables into a bulleted list within a parent table's `__doc` field.
   - *Pattern*: `alce.table = { __doc = [[ ... \n- table.sub: description \n- table.sub2: description ]] }`
-- **Static/Helper Tables**: For tables used as namespaces or helper classes (not iterated), add a `__doc` member directly to the table.
+- **Static/Helper Tables**: For tables used as namespaces or helper classes (not intended for iteration), add a `__doc` member directly to the table.
 
 ### Structured Functions (`fn` and `member_fn`)
 Replace standard function declarations with the `alce.src.fn` wrapper to provide validation and metadata.
