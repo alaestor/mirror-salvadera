@@ -73,10 +73,12 @@ vt.VTypeHelper.new = member_fn({
     doc = "creates a new VType helper",
     returns = "VType",
     schema = {
-        basicTypeString = { type = "any" }
+        basicTypeString = {
+            type = "basic type string: the name of the type without prefix (e.g. 'dword')",
+            validate = function(v) return validators.isNonBlankString(v) end
+        }
     },
     code = function(self, basicTypeString)
-        assert(validators.isNonBlankString(basicTypeString), 'alce.T.VType(): invalid argument: typeString: ' .. tostring(basicTypeString))
         local vts = 'vt' .. basicTypeString:sub(1,1):upper() .. basicTypeString:sub(2)
         local vt_global = _G[vts]
         assert(validators.isInteger(vt_global), 'alce.T.VType(): invalid argument: basicTypeString: no global variable named ' .. tostring(vts) )
@@ -117,7 +119,7 @@ vt.VTypeHelper.asInvokeArgument = member_fn({
     doc = "formats the VType and a value for invoking methods",
     returns = "dict {type=, value=}",
     schema = {
-        value = { type = "any" }
+        value = { type = "any value: the value to wrap" }
     },
     code = function(self, value)
         return {type = self.vType, value = value}
@@ -128,11 +130,13 @@ vt.VTypeHelper.read = member_fn({
     doc = "reads a value from the specified address using the VType",
     returns = "nil or the value",
     schema = {
-        address = { type = "any" }
+        address = {
+            type = "memory address: the address to read from",
+            validate = function(v) return validators.isAddresslike(v) end
+        }
     },
     code = function(self, address)
         assert(self.readUnsafe, 'alce.T.VType.read(): no read function for type ' .. self.name)
-        assert(validators.isAddresslike(address), 'alce.T.VType.read(): invalid address')
         return self.readUnsafe(address)
     end,
 })
@@ -141,12 +145,14 @@ vt.VTypeHelper.write = member_fn({
     doc = "writes a value to the specified address using the VType",
     returns = "boolean: whether or not it succeeded",
     schema = {
-        address = { type = "any" },
-        value = { type = "any" }
+        address = {
+            type = "memory address: the address to write to",
+            validate = function(v) return validators.isAddresslike(v) end
+        },
+        value = { type = "any value: the value to write" }
     },
     code = function(self, address, value)
-        assert(self.writeUnsafe, 'alce.T.VType.write(): no read function for type ' .. self.name)
-        assert(validators.isAddresslike(address), 'alce.T.VType.write(): invalid address')
+        assert(self.readUnsafe, 'alce.T.VType.write(): no read function for type ' .. self.name)
         return self.writeUnsafe(address, value)
     end,
 })

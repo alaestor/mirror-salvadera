@@ -72,5 +72,5 @@ When migrating monolithic code from `alcelib.lua` to modular `src/*.lua` files, 
 ### Structured Functions (`fn` and `member_fn`)
 Replace standard function declarations with the `alce.src.fn` wrapper to provide validation and metadata.
 
-- **Standalone Functions**: Use `fn({ doc = "...", returns = "...", schema = { ... }, code = function(self, args) ... end })`.
+- **Standalone Functions**: Use `fn({ doc = "...", returns = "...", schema = { ... }, code = function(self, args) ... end })`. Note that the `type` field in the `schema` is used for documentation purposes only and should follow the pattern `vague type descriptor: context` (e.g., `"memory address: the address to read from"`).
 - **Object Methods**: Use `member_fn({ ... })` for functions intended to be called as methods (`object:method()`). This ensures the object instance is passed as the first argument (`self`) to the `code` block while maintaining structured metadata.
