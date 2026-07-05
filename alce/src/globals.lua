@@ -34,6 +34,6 @@ Intended to be used in the table's lua script, or parted out as needed.
     isAttached = function()
         return process and readInteger(process) ~= 0
     end,
-},
+}
 
 return alce
