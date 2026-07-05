@@ -1,12 +1,15 @@
 {
-  description = "lua2md environment";
+  description = "Alaestor's Cheat Engine Library";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = { self, nixpkgs }:
-    let
+  outputs =
+    inputs@{ flake-parts, nixpkgs, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -14,59 +17,68 @@
         "aarch64-darwin"
       ];
 
-      forAllSystems = f: nixpkgs.lib.genAttrs systems f;
-
-    in
-    {
-      devShells = forAllSystems (system:
+      perSystem =
+        { pkgs, ... }:
         let
-          pkgs = import nixpkgs { inherit system; };
-          commonDeps = with pkgs; [ python3 ];
+          commonDeps = with pkgs; [
+            python3
+            lua5_3
+          ];
         in
         {
-          default = pkgs.mkShell {
-            buildInputs = commonDeps;
+          devShells.default = pkgs.mkShell {
+            packages = commonDeps;
 
             shellHook = ''
-              echo "Python development environment activated"
-              echo "Python version: $(python --version)"
+              echo "Development environment activated"
+              export LUA_PATH="../?.lua;;"
+              python --version
+              lua -v
             '';
           };
-        }
-      );
 
-      apps = forAllSystems (system:
-        let
-          pkgs = import nixpkgs { inherit system; };
-          commonDeps = with pkgs; [ python3 ];
-        in
-        rec {
-          mkreadme = {
+          apps.default = {
             type = "app";
-            program = toString (pkgs.writeShellScript "mkreadme" ''
-              set -euo pipefail
-              export PATH="${pkgs.lib.makeBinPath commonDeps}:$PATH"
-              LUA_FILE="''${1:-./alcelib.lua}"
-              MD_FILE="''${2:-./README.md}"
-              # Validate all required arguments
-              for var_name in LUA_FILE MD_FILE; do
-              if [[ -z "''${!var_name:-}" ]]; then
-                  echo "Error: $var_name is required but empty" >&2
-                  exit 1
-                fi
-              done
-              if [[ ! -f "$LUA_FILE" ]]; then
-                echo "Error: Lua file not found: $LUA_FILE" >&2
-                exit 1
-              fi
-              echo "Running lua2md to create the README.md file..."
-              echo "Python: $(python --version)"
-              rm -rf "$MD_FILE"
-              python ./lua2md.py "$LUA_FILE" "$MD_FILE"
-            '');
+            program = pkgs.lib.getExe (
+              pkgs.writeShellApplication {
+                name = "mkreadme";
+                runtimeInputs = commonDeps;
+
+                text = ''
+                  set -euo pipefail
+
+                  luaFile="''${1:-./alcelib.lua}"
+                  mdFile="''${2:-./README.md}"
+
+                  [[ -f "$luaFile" ]] || {
+                    echo "Lua file not found: $luaFile" >&2
+                    exit 1
+                  }
+
+                  python ./lua2md.py "$luaFile" "$mdFile"
+                '';
+              }
+            );
           };
-          default = mkreadme;
-        }
-      );
+
+          apps.test = {
+            type = "app";
+            program = pkgs.lib.getExe (
+              pkgs.writeShellApplication {
+                name = "test";
+                runtimeInputs = [ pkgs.lua5_3 ];
+
+                text = ''
+                  set -euo pipefail
+
+                  export LUA_PATH="../?.lua;;"
+
+                  find ./tests/ -name '*.test.lua' \
+                    -exec sh -c 'echo "Executing: $1"; lua "$1"' _ {} \;
+                '';
+              }
+            );
+          };
+        };
     };
 }
