@@ -28,6 +28,7 @@ vt.typeStrings = {}
 for _,v in ipairs(vt.basicTypeStrings) do table.insert(vt.typeStrings, 'vt' .. v:sub(1,1):upper() .. v:sub(2)) end
 
 vt.size = {
+    [vtUnicodeString] = 1,
     [vtByte]          = 1,
     [vtWord]          = 2,
     [vtDword]         = 4,
@@ -39,6 +40,7 @@ vt.size = {
 }
 
 vt.read = {
+    [vtUnicodeString] = function(addr) return readBytes(addr, 1, false) end,
     [vtByte]          = function(addr) return readBytes(addr, 1, false) end,
     [vtWord]          = readSmallInteger,
     [vtDword]         = readInteger,
@@ -50,6 +52,7 @@ vt.read = {
 }
 
 vt.write = {
+    [vtUnicodeString] = function(addr, val) return writeBytes(addr, {val & 0xFF}) end,
     [vtByte]          = function(addr, val) return writeBytes(addr, {val & 0xFF}) end,
     [vtWord]          = writeSmallInteger,
     [vtDword]         = writeInteger,
