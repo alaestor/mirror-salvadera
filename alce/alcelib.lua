@@ -26,125 +26,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 --- ## Plumbing
 
---[[{
-    Collection related to global constants defined in CE's `monoscript.lua`
+-- Monoscript constants migration
+-- See alce/src/monoscript.lua
 
-    Groups:
-    - `monotype`
-    - `fieldAttribute`
-    - `methodAttribute`
-
-    Each group's dict contains the string `prefix` of the global constants, an array of `names` and a `nameLookup` dict of names keyed by their value.
-
-    **Note:** For each name string, you can get its value by `_G[name]`. For some monoTypes, `monoscript.lua` provides C-style type names via `monoTypeToCStringLookup[name]`
---}]]
-alce.monoscript = {}
-
--- declare groups
-for _,v in pairs({
-    {name = 'monotype', prefix = 'MONO_TYPE_'},
-    {name = 'fieldAttribute', prefix = 'FIELD_ATTRIBUTE_'},
-    {name = 'methodAttribute', prefix = 'METHOD_ATTRIBUTE_'}
-}) do
-    alce.monoscript[v.name] = {}
-    local t = alce.monoscript[v.name]
-    t.prefix = v.prefix
-    t.prefixLen = string.len(t.prefix)
-    t.names = {}
-    t.nameLookup = {}
-end
-
--- map globals to groups
-for k, v in pairs(_G) do
-    if type(k) == 'string' then
-        for _,group in pairs(alce.monoscript) do
-            if k:sub(1,group.prefixLen) == group.prefix then
-                table.insert(group.names, k)
-                group.nameLookup[v] = k
-            end
-        end
-    end
-end
-
--- sort name arrays alphabetically
-for _,group in pairs(alce.monoscript) do table.sort(group.names) end
-
---- a table of various CE type helpers. They can be useful on their own, but they mainly exist to be utilized by the user-friendly `alce.vt.VTypeHelper` instances in `alce.T`
-alce.vt = {}
-
---- array of fundamental type strings (e.g. string `'byte'`, `'dword'`, `'pointer'`)
-alce.vt.basicTypeStrings = {
-    --'unicodeString',
-    'byte',
-    'word',
-    'dword',
-    'qword',
-    'single',
-    'double',
-    'pointer',
-}
-
---- array of CE type strings (e.g. string `'vtByte'`, `'vtDword'`, `'vtPointer'`)
-alce.vt.typeStrings = {}
-for _,v in ipairs(alce.vt.basicTypeStrings) do table.insert(alce.vt.typeStrings, 'vt' .. v:sub(1,1):upper() .. v:sub(2)) end
-
---- dict mapping CE's vt types and their respective sizes in bytes (accounts for 32/64bit processes; no support for 16bit addressing)
-alce.vt.size = {
-    --[vtUnicodeString] = 1,
-    [vtByte]          = 1,
-    [vtWord]          = 2,
-    [vtDword]         = 4,
-    [vtQword]         = 8,
-    [vtSingle]        = 4,
-    [vtDouble]        = 8,
-    [vtString]        = targetIs64Bit() and 8 or 4,
-    [vtPointer]       = targetIs64Bit() and 8 or 4,
-}
-
---- dict mapping CE's vt types and their respective read functions (e.g. `[vdDword]` is `readInteger`)
-alce.vt.read = {
-    --[vtUnicodeString] = readString, --? should this be readBytes looking nullterm? just niling for now
-    [vtByte]          = function(addr) return readBytes(addr, 1, false) end,
-    [vtWord]          = readSmallInteger,
-    [vtDword]         = readInteger,
-    [vtQword]         = readQword,
-    [vtSingle]        = readFloat,
-    [vtDouble]        = readDouble,
-    [vtString]        = readString,
-    [vtPointer]       = readPointer,
-}
-
---- mapping of CE's vt types and their respective write functions (e.g. `[vdDword]` is `writeInteger`)
-alce.vt.write = {
-    --[vtUnicodeString] = writeString, --? see read
-    [vtByte]          = function(addr, val) return writeBytes(addr, {val & 0xFF}) end,
-    [vtWord]          = writeSmallInteger,
-    [vtDword]         = writeInteger,
-    [vtQword]         = writeQword,
-    [vtSingle]        = writeFloat,
-    [vtDouble]        = writeDouble,
-    [vtString]        = writeString,
-    [vtPointer]       = function(addr, val) return (targetIs64Bit() and writeQword or writeInteger)(addr, val) end,
-}
-
---- for working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
-alce.vt.VTypeHelper = {
-    new = function(self, basicTypeString) --> a newly created VType
-        assert(alce.isNonBlankString(basicTypeString), 'alce.T.VType(): invalid argument: typeString: ' .. tostring(typeString))
-        local vts = 'vt' .. basicTypeString:sub(1,1):upper() .. basicTypeString:sub(2)
-        local vt = _G[vts]
-        assert(alce.isInteger(vt), 'alce.T.VType(): invalid argument: basicTypeString: no global variable named ' .. tostring(vts) )
-        local instance = {
-            name = basicTypeString,
-            vtName = vts,
-            vType = vt,
-            size = alce.vt.size[vt],
-            readUnsafe = alce.vt.read[vt],
-            writeUnsafe = alce.vt.write[vt],
-        }
-        setmetatable(instance, { __index = self, __call = self.asInvokeArgument, __name ='VTypeHelper: ' .. basicTypeString })
-        return instance
-    end,
+-- Type helpers migration
+-- See alce/src/vt.lua
 
     getMonotypes = function(self) --> nil or array of integers
         return alce.keysFromValue(self.vType, monoTypeToVartypeLookup)
@@ -217,32 +103,8 @@ for k,_ in pairs(monoTypeToVartypeLookup) do if type(k) == 'number' and k > alce
 -- T and Mono utilities have been moved to alce/src/t.lua and alce/src/mono.lua
 -- TODO: Remove these once fully migrated and verified.
 
-local function AllocateSymbols_register(context, optional_names)
-    assert(optional_names == nil or type(optional_names) == 'table', 'alce.memory.AllocateSymbols.unregister(): invalid argument: optional_names must be an array of strings or nil.')
-    local namesToRegister = optional_names or context.names
-    for _, name in ipairs(namesToRegister) do
-        assert(context.addresses[name], "alce.memory.AllocateSymbols.unregister(): invalid argument: invalid name: " .. tostring(name))
-        if not context.registered[name] then
-            local symbol = context.symbolNames[name]
-            local address = context.addresses[name]
-            registerSymbol(symbol, address, true)
-            context.registered[name] = symbol
-        end
-    end
-end
-
-local function AllocateSymbols_unregister(context, optional_names)
-    assert(optional_names == nil or type(optional_names) == 'table', 'alce.memory.AllocateSymbols.unregister(): invalid argument: optional_names must be an array of strings or nil.')
-    local namesToUnregister = {}
-    if optional_names == nil then for name, _ in pairs(context.registered) do table.insert(namesToUnregister, name) end
-    else namesToUnregister = optional_names end
-    for _, name in ipairs(namesToUnregister) do
-        assert(context.registered[name], "alce.memory.AllocateSymbols.unregister(): invalid argument: symbol not registered: " .. tostring(name))
-        local symbol = context.registered[name]
-        unregisterSymbol(symbol)
-        context.registered[name] = nil
-    end
-end
+-- Symbol Allocation migration
+-- See alce/src/memory.lua
 
 --[[{
     Allocates contiguous memory aliased by name calculated by type size and provides easy read/write access to them. Also lets you register/unregister the names as global symbols with an optional prefix.

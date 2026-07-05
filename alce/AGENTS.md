@@ -1,6 +1,6 @@
 # Alce Agent Guidelines
 
-This document provides guidance for agents working on the Alce library to ensure consistency in code quality, documentation, and testing.
+This document provides guidance for agents working on the ALCE library to ensure consistency in code quality, documentation, and testing.
 
 ## Testing
 
@@ -59,3 +59,18 @@ Tests are executed via the Nix flake:
 
 To enable detailed output during development, set the `ALCE_VERBOSE` environment variable:
 `ALCE_VERBOSE=1 nix run .#test`
+
+## Documentation and Migration
+
+When migrating monolithic code from `alcelib.lua` to modular `src/*.lua` files, follow these documentation patterns to support the project's structured documentation system.
+
+### Table Documentation (`__doc`)
+- **Iterated Tables**: For "data" tables that are iterated using `pairs`, avoid adding metadata keys. Instead, consolidate descriptions of subtables into a bulleted list within the main table's `__doc` field.
+  - *Pattern*: `alce.table = { __doc = [[ ... \n- table.sub: description \n- table.sub2: description ]] }`
+- **Static/Helper Tables**: For tables used as namespaces or helper classes (not iterated), add a `__doc` member directly to the table.
+
+### Structured Functions (`fn` and `member_fn`)
+Replace standard function declarations with the `alce.src.fn` wrapper to provide validation and metadata.
+
+- **Standalone Functions**: Use `fn({ doc = "...", returns = "...", schema = { ... }, code = function(self, args) ... end })`.
+- **Object Methods**: Use `member_fn({ ... })` for functions intended to be called as methods (`object:method()`). This ensures the object instance is passed as the first argument (`self`) to the `code` block while maintaining structured metadata.

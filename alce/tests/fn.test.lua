@@ -37,4 +37,34 @@ test.run_and_report(function()
             test.expect(result).to_eq(30)
         end)
     end)
+
+    test.describe("alce.src.fn.member_fn factory", function()
+        local config = {
+            doc = "A simple member function",
+            code = function(instance, value)
+                return instance.base + value
+            end,
+            schema = {
+                value = { type = "number" }
+            }
+        }
+
+        local my_member_fn = fn_module.member_fn(config)
+        local mock_instance = { base = 100, my_member_fn = my_member_fn }
+
+        test.it("should be callable as a method using colon syntax", function()
+            local result = mock_instance:my_member_fn(50)
+            test.expect(result).to_eq(150)
+        end)
+
+        test.it("should be callable as a function passing the instance explicitly", function()
+            local result = my_member_fn(mock_instance, 50)
+            test.expect(result).to_eq(150)
+        end)
+
+        test.it("should preserve metadata from configuration", function()
+            test.expect(my_member_fn.doc).to_eq("A simple member function")
+            test.expect(my_member_fn.schema).to_be_type("table")
+        end)
+    end)
 end)
