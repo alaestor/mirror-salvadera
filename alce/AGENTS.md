@@ -1,0 +1,61 @@
+# Alce Agent Guidelines
+
+This document provides guidance for agents working on the Alce library to ensure consistency in code quality, documentation, and testing.
+
+## Testing
+
+Alce uses a custom, lightweight BDD-style testing framework located in `alce/tests/test_utils.lua`. All new tests must adhere to this structure to maintain readability and consistent reporting.
+
+### Test Structure
+
+Tests should follow a **Given-When-Then** logical flow and be organized hierarchically:
+
+1.  **Entry Point**: Every `.test.lua` file must wrap its contents in `test.run_and_report(function() ... end)`. This ensures the test results are summarized and the filename is correctly reported.
+2.  **Grouping (`describe`)**: Use `test.describe("Feature Name", function() ... end)` to group related tests. This serves as the "Given" context.
+3.  **Individual Tests (`it` / `it_throws`)**: 
+    *   Use `test.it("should [expected behavior]", function() ... end)` for positive cases.
+    *   Use `test.it_throws("should throw error when [condition]", function() ... end)` for negative cases (where the code is expected to `error()`).
+4.  **Assertions (`expect`)**: Use the fluent `test.expect(actual)` API for validations:
+    *   `.to_eq(expected)`: Checks for equality.
+    *   `.to_be_type("type")`: Validates the Lua type (e.g., `"number"`, `"table"`, `"string"`).
+    *   `.to_be_true()`: Validates that a value is truthy.
+    *   `.to_be_false()`: Validates that a value is falsy/nil.
+
+### Best Practices
+
+- **Isolate Surface Area**: Unit tests should validate the smallest possible piece of logic. Integration tests should simulate high-level workflows.
+- **Test the Interface**: Validate the guarantees the API makes, not the internal implementation details.
+- **Negative Testing**: Always include cases where the code should fail (e.g., missing required arguments, type mismatches in strict mode).
+- **Conciseness**: Tests should be clear and concise. If a test requires extensive setup, move that setup to the `describe` block.
+
+### Example
+
+```lua
+local test = require("alce.tests.test_utils")
+local module = require("alce.src.module")
+
+test.run_and_report(function()
+    test.describe("module.function_name", function()
+        -- Given: a specific configuration
+        local config = { ... }
+        local obj = module.create(config)
+
+        test.it("should return a value when input is valid", function()
+            local result = obj:do_work(10)
+            test.expect(result).to_eq(20)
+        end)
+
+        test.it_throws("should fail when input is nil", function()
+            obj:do_work(nil)
+        end)
+    end)
+end)
+```
+
+### Running Tests
+
+Tests are executed via the Nix flake:
+`nix run .#test`
+
+To enable detailed output during development, set the `ALCE_VERBOSE` environment variable:
+`ALCE_VERBOSE=1 nix run .#test`
