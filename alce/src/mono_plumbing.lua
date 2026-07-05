@@ -2,7 +2,7 @@ local fn = require("alce.src.fn").fn
 local validators = require("alce.src.validators")
 local alce = require("alce.src.globals")
 
-local mono = {}
+local mono_plumbing = {}
 
 -- Internal helper functions
 
@@ -42,7 +42,7 @@ end
 
 -- Public API
 
-mono.init = fn({
+mono_plumbing.init = fn({
     doc = "initializes mono state",
     returns = "nil",
     code = function(self)
@@ -53,7 +53,7 @@ mono.init = fn({
     end
 })
 
-mono.invoke = fn({
+mono_plumbing.invoke = fn({
     doc = "invokes a mono method",
     returns = "any|nil, string|nil, string|nil",
     positional = true,
@@ -116,7 +116,7 @@ mono.invoke = fn({
     end
 })
 
-mono.sortByHierarchy = fn({
+mono_plumbing.sortByHierarchy = fn({
     doc = "sorts an array of members by parent hierarchy, from parent to child",
     returns = "table",
     schema = {
@@ -141,7 +141,7 @@ mono.sortByHierarchy = fn({
     end
 })
 
-mono.getImage = fn({
+mono_plumbing.getImage = fn({
     doc = "gets Image by assemblyName",
     returns = "number|nil",
     schema = {
@@ -160,7 +160,7 @@ mono.getImage = fn({
     end
 })
 
-mono.getClassEx = fn({
+mono_plumbing.getClassEx = fn({
     doc = "finds a class by name in a specific assembly and namespace",
     returns = "table|nil",
     schema = {
@@ -180,7 +180,7 @@ mono.getClassEx = fn({
     end
 })
 
-mono.getClass = fn({
+mono_plumbing.getClass = fn({
     doc = "returns the class handle for a given class",
     returns = "number|nil",
     schema = {
@@ -194,7 +194,7 @@ mono.getClass = fn({
     end
 })
 
-mono.method_getSignature = fn({
+mono_plumbing.method_getSignature = fn({
     doc = "returns the signature of a method",
     returns = "table",
     schema = {
@@ -220,7 +220,7 @@ mono.method_getSignature = fn({
     end
 })
 
-mono.class_getParentHierarchy = fn({
+mono_plumbing.class_getParentHierarchy = fn({
     doc = "returns array of class IDs ordered from parent to child",
     returns = "table",
     schema = {
@@ -237,7 +237,7 @@ mono.class_getParentHierarchy = fn({
     end
 })
 
-mono.getProcessedFields = fn({
+mono_plumbing.getProcessedFields = fn({
     doc = "enumerates and processes fields for a class",
     returns = "table|nil",
     schema = {
@@ -304,7 +304,7 @@ mono.getProcessedFields = fn({
     end
 })
 
-mono.getProcessedMethods = fn({
+mono_plumbing.getProcessedMethods = fn({
     doc = "enumerates and processes methods for a class",
     returns = "table|nil",
     schema = {
@@ -336,7 +336,7 @@ mono.getProcessedMethods = fn({
     end
 })
 
-mono.ObjectAlias = fn({
+mono_plumbing.ObjectAlias = fn({
     doc = "creates a proxy object for a mono object",
     returns = "proxy object",
     schema = {
@@ -377,4 +377,4 @@ mono.ObjectAlias = fn({
     end
 })
 
-return mono
+return mono_plumbing
