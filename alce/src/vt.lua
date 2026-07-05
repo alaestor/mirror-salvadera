@@ -75,6 +75,7 @@ vt.VTypeHelper.new = member_fn({
     schema = {
         basicTypeString = {
             type = "basic type string: the name of the type without prefix (e.g. 'dword')",
+            required = true,
             validate = function(v) return validators.isNonBlankString(v) end
         }
     },
@@ -119,7 +120,7 @@ vt.VTypeHelper.asInvokeArgument = member_fn({
     doc = "formats the VType and a value for invoking methods",
     returns = "dict {type=, value=}",
     schema = {
-        value = { type = "any value: the value to wrap" }
+        value = { type = "any value: the value to wrap", required = true }
     },
     code = function(self, value)
         return {type = self.vType, value = value}
@@ -132,6 +133,7 @@ vt.VTypeHelper.read = member_fn({
     schema = {
         address = {
             type = "memory address: the address to read from",
+            required = true,
             validate = function(v) return validators.isAddresslike(v) end
         }
     },
@@ -147,9 +149,10 @@ vt.VTypeHelper.write = member_fn({
     schema = {
         address = {
             type = "memory address: the address to write to",
+            required = true,
             validate = function(v) return validators.isAddresslike(v) end
         },
-        value = { type = "any value: the value to write" }
+        value = { type = "any value: the value to write", required = true }
     },
     code = function(self, address, value)
         assert(self.readUnsafe, 'alce.T.VType.write(): no read function for type ' .. self.name)

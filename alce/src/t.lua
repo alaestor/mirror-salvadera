@@ -57,7 +57,7 @@ T.unsafeFromMono = fn({
     doc = "returns a VTypeHelper from a monoType, with a warning if it exceeds the lookup key limit",
     returns = "VTypeHelper",
     schema = {
-        monoType = { type = "any" }
+        monoType = { type = "any", required = true }
     },
     code = function(self, args)
         local monoType = args.monoType
@@ -72,7 +72,7 @@ T.fromMono = fn({
     doc = "returns a VTypeHelper from a monoType with a bounds-checking assertion",
     returns = "VTypeHelper",
     schema = {
-        monoType = { type = "any" }
+        monoType = { type = "any", required = true }
     },
     code = function(self, args)
         local monoType = args.monoType

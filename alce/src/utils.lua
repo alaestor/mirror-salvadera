@@ -42,7 +42,7 @@ utils.enumerate = fn({
     doc = "enumerates an iterator, providing an index starting from optional_startFrom",
     returns = "integer, any",
     schema = {
-        iterator = { validate = validators.isCallable },
+        iterator = { validate = validators.isCallable, required = true },
         startFrom = { type = "number", default = 1 }
     },
     code = function(self, args)
@@ -60,10 +60,8 @@ utils.enumerate = fn({
 utils.prune = fn({
     doc = "recursively nils keys with empty tables",
     returns = "nil",
-    schema = {
-        tbl = { type = "table" }
-    },
-    code = function(self, args)
+    positional = true,
+    code = function(self, tbl)
         local function prune_recursive(tbl)
             if type(tbl) ~= "table" then return end
             for k, v in pairs(tbl) do
@@ -73,7 +71,7 @@ utils.prune = fn({
                 end
             end
         end
-        prune_recursive(args.tbl)
+        prune_recursive(tbl)
     end
 })
 
@@ -81,8 +79,8 @@ utils.keyFromValue = fn({
     doc = "returns the first key associated with a given value",
     returns = "any|nil",
     schema = {
-        value = { type = "any" },
-        tbl = { type = "table" }
+        value = { type = "any", required = true },
+        tbl = { type = "table", required = true, validate = validators.isTable }
     },
     code = function(self, args)
         for k, v in pairs(args.tbl) do
@@ -95,8 +93,8 @@ utils.keysFromValue = fn({
     doc = "returns an array of all keys associated with a given value",
     returns = "table|nil",
     schema = {
-        value = { type = "any" },
-        tbl = { type = "table" }
+        value = { type = "any", required = true },
+        tbl = { type = "table", required = true, validate = validators.isTable }
     },
     code = function(self, args)
         local keys = {}
@@ -112,8 +110,8 @@ utils.unsafeExtend = fn({
     doc = "assigns k,v pairs from one table to another, silently overwriting duplicate keys",
     returns = "nil",
     schema = {
-        to = { type = "table" },
-        from = { type = "table" }
+        to = { type = "table", required = true, validate = validators.isTable },
+        from = { type = "table", required = true, validate = validators.isTable }
     },
     code = function(self, args)
         for k, v in pairs(args.from) do
@@ -126,8 +124,8 @@ utils.extend = fn({
     doc = "assigns k,v pairs from one table to another, asserting that the keys do not already exist",
     returns = "nil",
     schema = {
-        to = { type = "table" },
-        from = { type = "table" }
+        to = { type = "table", required = true, validate = validators.isTable },
+        from = { type = "table", required = true, validate = validators.isTable }
     },
     code = function(self, args)
         for k, v in pairs(args.from) do

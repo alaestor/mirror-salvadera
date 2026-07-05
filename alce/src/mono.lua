@@ -120,8 +120,8 @@ mono.sortByHierarchy = fn({
     doc = "sorts an array of members by parent hierarchy, from parent to child",
     returns = "table",
     schema = {
-        array = { type = "table" },
-        hierarchy = { validate = validators.isNonEmptyTable }
+        array = { type = "table", required = true },
+        hierarchy = { validate = validators.isNonEmptyTable, required = true }
     },
     code = function(self, args)
         local array = args.array
@@ -145,7 +145,7 @@ mono.getImage = fn({
     doc = "gets Image by assemblyName",
     returns = "number|nil",
     schema = {
-        assemblyName = { type = "string" },
+        assemblyName = { type = "string", required = true },
         optional_enumeratedAssemblies = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
     },
     code = function(self, args)
@@ -164,8 +164,8 @@ mono.getClassEx = fn({
     doc = "finds a class by name in a specific assembly and namespace",
     returns = "table|nil",
     schema = {
-        assemblyNameOrImage = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end },
-        className = { validate = validators.isNonBlankString },
+        assemblyNameOrImage = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end, required = true },
+        className = { validate = validators.isNonBlankString, required = true },
         optional_namespace = { type = "string" }
     },
     code = function(self, args)
@@ -184,8 +184,8 @@ mono.getClass = fn({
     doc = "returns the class handle for a given class",
     returns = "number|nil",
     schema = {
-        assemblyNameOrImage = { type = "any" },
-        className = { type = "string" },
+        assemblyNameOrImage = { type = "any", required = true },
+        className = { type = "string", required = true },
         optional_namespace = { type = "string" }
     },
     code = function(self, args)
@@ -198,7 +198,7 @@ mono.method_getSignature = fn({
     doc = "returns the signature of a method",
     returns = "table",
     schema = {
-        methodID = { validate = validators.isPositiveInteger },
+        methodID = { validate = validators.isPositiveInteger, required = true },
         optional_methodName = { type = "string" }
     },
     code = function(self, args)
@@ -224,7 +224,7 @@ mono.class_getParentHierarchy = fn({
     doc = "returns array of class IDs ordered from parent to child",
     returns = "table",
     schema = {
-        classID = { validate = validators.isPositiveInteger }
+        classID = { validate = validators.isPositiveInteger, required = true }
     },
     code = function(self, args)
         local hierarchy = {}
@@ -241,7 +241,7 @@ mono.getProcessedFields = fn({
     doc = "enumerates and processes fields for a class",
     returns = "table|nil",
     schema = {
-        classID = { type = "any" },
+        classID = { type = "any", required = true },
         optional_getParents = { type = "boolean" },
         optional_hierarchy = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end },
         optional_keepMetadata = { type = "boolean" },

@@ -83,6 +83,16 @@ validators.isNonBlankString = fn({
     end
 })
 
+validators.isTable = fn({
+    doc = "checks if value is a table",
+    returns = "boolean",
+    positional = true,
+    schema = { value = { type = "any" } },
+    code = function(self, value)
+        return type(value) == 'table'
+    end
+})
+
 validators.isEmptyTable = fn({
     doc = "checks if value is an empty table",
     returns = "boolean",
