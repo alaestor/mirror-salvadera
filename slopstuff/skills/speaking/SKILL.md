@@ -1,6 +1,6 @@
 ---
-name: behavior-speaking
-description: How and when to use the "speak" tool
+name: speaking
+description: (no description)
 disable-model-invocation: true
 ---
 
