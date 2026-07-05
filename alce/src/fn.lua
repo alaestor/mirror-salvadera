@@ -3,6 +3,8 @@ local function fn(config)
         _type = "fn_structured_function",
         code = config.code,
         doc = config.doc or "",
+        returns = config.returns or "",
+        positional = config.positional or false,
         debug = config.debug or {},
         schema = config.schema or {}
     }
@@ -14,10 +16,15 @@ local function fn(config)
     end
 
     setmetatable(func, {
-        __call = function(self, args)
+        __call = function(self, ...)
+            local args = ...
             -- Integration point for arg_parser
             local alce = require("alce.src.globals")
             local arg_parser = require("alce.src.arg_parser")
+
+            if self.positional then
+                return self.code(self, ...)
+            end
 
             local parsed_args
             if alce.cfg.strict then
@@ -28,10 +35,9 @@ local function fn(config)
                 parsed_args = {}
                 for key, spec in pairs(self.schema) do
                     local exists = false
-                    for k in pairs(args) do
-                        if k == key then
+                    if type(args) == 'table' then
+                        if args[key] ~= nil then
                             exists = true
-                            break
                         end
                     end
 

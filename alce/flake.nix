@@ -73,8 +73,7 @@
 
                   export LUA_PATH="../?.lua;;"
 
-                  find ./tests/ -name '*.test.lua' \
-                    -exec sh -c 'echo "Executing: $1"; lua "$1"' _ {} \;
+                  find ./tests/ -name '*.test.lua' -exec sh -c 'lua "$1"' _ {} \;
                 '';
               }
             );
