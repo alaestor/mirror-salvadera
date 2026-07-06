@@ -3,12 +3,13 @@ local member_fn = require("alce.src.fn").member_fn
 local validators = require("alce.src.validators")
 local alce = require("alce.src.globals")
 local mono_plumbing = require("alce.src.mono_plumbing")
+local mono_t = require("alce.src.mono_t")
 
 local mono = {
     __doc = "Mono porcelain helpers for ergonomic interaction with Mono types.",
 }
 
-mono.T = require("alce.src.mono_t")
+mono.T = mono_t
 
 mono.init = fn({
     doc = "Helper that asserts the process is attached and tries to launch the mono data collector if it's not connected already.",

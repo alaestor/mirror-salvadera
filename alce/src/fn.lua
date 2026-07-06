@@ -1,3 +1,6 @@
+local alce = require("alce.src.globals")
+local arg_parser = require("alce.src.arg_parser")
+
 local function fn(config)
     local func = {
         _type = "fn_structured_function",
@@ -19,9 +22,6 @@ local function fn(config)
     setmetatable(func, {
         __call = function(self, ...)
             local varargs = {...}
-            -- Integration point for arg_parser
-            local alce = require("alce.src.globals")
-            local arg_parser = require("alce.src.arg_parser")
 
             if self.positional then
                 return self.code(self, ...)

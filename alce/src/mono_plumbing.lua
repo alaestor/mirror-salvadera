@@ -1,6 +1,7 @@
 local fn = require("alce.src.fn").fn
 local validators = require("alce.src.validators")
 local alce = require("alce.src.globals")
+local T = require("alce.src.t")
 
 local mono_plumbing = {}
 
@@ -12,8 +13,6 @@ local function aliasRead(context, key)
     if offset then
         assert(validators.isNonEmptyTable(class.meta), 'alce.mono.ObjectAlias(): error in aliasRead: metadata table for "' .. tostring(class.name) .. '" was invalid; not populated?')
         local meta = class.meta.offset[key]
-        assert(meta, 'alce.mono.ObjectAlias(): error in aliasRead: failed to find metadata for offset ' .. tostring(key))
-        local T = require("alce.src.t")
         local t = T.fromMono({ monoType = meta.monotype })
         return t:read(context.baseAddress + offset)
     end
@@ -30,8 +29,6 @@ local function aliasWrite(context, key, value)
     if offset then
         assert(validators.isNonEmptyTable(class.meta), 'alce.mono.ObjectAlias(): error in aliasWrite: metadata table for "' .. tostring(class.name) .. '" was invalid; not populated?')
         local meta = class.meta.offset[key]
-        assert(meta, 'alce.mono.ObjectAlias(): error in aliasWrite: failed to find metadata for offset ' .. tostring(key))
-        local T = require("alce.src.t")
         local t = T.fromMono({ monoType = meta.monotype })
         return t:write(context.baseAddress + offset, value)
     end
