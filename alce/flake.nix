@@ -21,7 +21,6 @@
         { pkgs, ... }:
         let
           commonDeps = with pkgs; [
-            python3
             lua5_3
           ];
         in
@@ -37,25 +36,20 @@
             '';
           };
 
-          apps.default = {
+          apps.mkdoc = {
             type = "app";
             program = pkgs.lib.getExe (
               pkgs.writeShellApplication {
-                name = "mkreadme";
-                runtimeInputs = commonDeps;
+                name = "mkdoc";
+                runtimeInputs = [ pkgs.lua5_3 ];
 
                 text = ''
                   set -euo pipefail
 
-                  luaFile="''${1:-./alcelib.lua}"
-                  mdFile="''${2:-./README.md}"
+                  export LUA_PATH="../?.lua;;"
 
-                  [[ -f "$luaFile" ]] || {
-                    echo "Lua file not found: $luaFile" >&2
-                    exit 1
-                  }
-
-                  python ./lua2md.py "$luaFile" "$mdFile"
+                  export ALCE_DOC_OUTPUT="README.md"
+                  lua -e "package.path = package.path .. ';src?.lua;src/?.lua;tools?.lua;tools/?.lua'; require('alce.tools.docs_gen')"
                 '';
               }
             );

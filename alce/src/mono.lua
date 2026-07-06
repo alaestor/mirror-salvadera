@@ -144,7 +144,7 @@ mono.Method = {
         returns = "any",
         schema = {
             maybe_instance = { type = "number: optional instance address" },
-            ... = { type = "any: positional arguments" }
+            ["..."] = { type = "any: positional arguments" }
         },
         code = function(self, maybe_instance, ...)
             assert(self.id and self.parameters, 'alce.mono.Method.call(): malformed method; not initialized?')
