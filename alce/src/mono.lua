@@ -25,14 +25,14 @@ mono.Method = {
         doc = "initializes a mono method",
         returns = "self",
         schema = {
-            methodID = { validate = validators.isPositiveInteger },
-            optional_name = { type = "string" },
-            optional_flags = { type = "number" }
+            methodID = { validate = validators.isPositiveInteger, required = true },
+            name = { type = "string" },
+            flags = { type = "number" }
         },
         code = function(self, args)
             local methodID = args.methodID
-            local name = args.optional_name
-            local flags = args.optional_flags
+            local name = args.name
+            local flags = args.flags
 
             self.id = methodID
             self.flags = flags or mono_method_getFlags(methodID)
@@ -44,7 +44,7 @@ mono.Method = {
 
             self.signature = mono_plumbing.method_getSignature({
                 methodID = methodID,
-                optional_methodName = name
+                methodName = name
             })
             self.name = name
             return self
@@ -55,9 +55,9 @@ mono.Method = {
         doc = "creates a new mono method instance",
         returns = "Method",
         schema = {
-            optional_methodID = { validate = validators.isPositiveInteger },
-            optional_name = { type = "string" },
-            optional_flags = { type = "number" }
+            methodID = { validate = validators.isPositiveInteger },
+            name = { type = "string" },
+            flags = { type = "number" }
         },
         code = function(self, args)
             local instance = {}
@@ -68,11 +68,11 @@ mono.Method = {
                 end
             })
 
-            if args.optional_methodID then
+            if args.methodID then
                 instance:init({
-                    methodID = args.optional_methodID,
-                    optional_name = args.optional_name,
-                    optional_flags = args.optional_flags
+                    methodID = args.methodID,
+                    name = args.name,
+                    flags = args.flags
                 })
             end
             return instance
@@ -130,8 +130,8 @@ mono.Method = {
                 methodID = self.id,
                 maybe_instance = args.maybe_instance,
                 maybe_arguments = args.maybe_args,
-                optional_parameters = self.parameters,
-                optional_flags = self.flags
+                parameters = self.parameters,
+                flags = self.flags
             })
         end
     }),
@@ -182,23 +182,23 @@ mono.Class = {
         doc = "creates a new mono class instance",
         returns = "Class",
         schema = {
-            assemblyNameOrImage = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end },
-            className = { validate = validators.isNonBlankString },
-            optional_namespace = { type = "string" },
-            optional_getParents = { type = "boolean" }
+            assemblyNameOrImage = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end, required = true },
+            className = { validate = validators.isNonBlankString, required = true },
+            namespace = { type = "string" },
+            getParents = { type = "boolean" }
         },
         code = function(self, args)
             local assemblyNameOrImage = args.assemblyNameOrImage
             local className = args.className
-            local optional_namespace = args.optional_namespace
-            local optional_getParents = args.optional_getParents
+            local namespace = args.namespace
+            local getParents = args.getParents
 
-            alce.debug('alce.mono.Class.new(): attempting to get "', className, optional_getParents and '" with parents' or '"')
+            alce.debug('alce.mono.Class.new(): attempting to get "', className, getParents and '" with parents' or '"')
 
             local id = mono_plumbing.getClass({
                 assemblyNameOrImage = assemblyNameOrImage,
                 className = className,
-                optional_namespace = optional_namespace
+                namespace = namespace
             })
 
             if not validators.isAddresslike(id) then
@@ -209,9 +209,9 @@ mono.Class = {
             local hierarchy = mono_plumbing.class_getParentHierarchy({ classID = id })
             local methods = mono_plumbing.getProcessedMethods({
                 classID = id,
-                optional_getParents = optional_getParents,
-                optional_hierarchy = hierarchy,
-                optional_keepMetadata = true
+                getParents = getParents,
+                hierarchy = hierarchy,
+                keepMetadata = true
             })
 
             if not methods then
@@ -221,9 +221,9 @@ mono.Class = {
 
             local fields = mono_plumbing.getProcessedFields({
                 classID = id,
-                optional_getParents = optional_getParents,
-                optional_hierarchy = hierarchy,
-                optional_keepMetadata = true
+                getParents = getParents,
+                hierarchy = hierarchy,
+                keepMetadata = true
             })
 
             if not fields then
@@ -233,7 +233,7 @@ mono.Class = {
 
             local instance = {
                 id = id,
-                namespace = optional_namespace,
+                namespace = namespace,
                 name = className,
                 method = methods,
             }
@@ -276,16 +276,16 @@ mono.ClassTable = {
         doc = "creates a new mono class table instance",
         returns = "ClassTable",
         schema = {
-            optional_keyPrefixAssembly = { type = "string" },
-            optional_keyPrefixNamespace = { type = "string" },
+            keyPrefixAssembly = { type = "string" },
+            keyPrefixNamespace = { type = "string" },
         },
         code = function(self, args)
             local instance = {
                 _internal = {
                     targetList = {},
                     isLoaded = false,
-                    keyPrefixAssembly = args.optional_keyPrefixAssembly,
-                    keyPrefixNamespace = args.optional_keyPrefixNamespace,
+                    keyPrefixAssembly = args.keyPrefixAssembly,
+                    keyPrefixNamespace = args.keyPrefixNamespace,
                 }
             }
             setmetatable(instance, { __index = mono.ClassTable })
@@ -344,7 +344,7 @@ mono.ClassTable = {
         doc = "loads the classes specified in the target list",
         returns = "self",
         schema = {
-            optional_getParents = { type = "boolean" }
+            getParents = { type = "boolean" }
         },
         code = function(self, args)
             alce.debug('alce.mono.ClassTable.load(): called.')
@@ -361,8 +361,8 @@ mono.ClassTable = {
                 local c = mono.Class.new({
                     assemblyNameOrImage = assemblies[assemblyName],
                     className = className,
-                    optional_namespace = namespace,
-                    optional_getParents = args.optional_getParents
+                    namespace = namespace,
+                    getParents = args.getParents
                 })
                 if c then
                     local keyPrefixA = self._internal.keyPrefixAssembly and assemblyName .. '.' or ''
