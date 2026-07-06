@@ -41,7 +41,7 @@ Can be used at the bottom of an [ENABLE] section to turn a script into a momenta
 ]],
     returns = "none",
     schema = {
-        disableBeep = { type = "boolean", default = false }
+        disableBeep = { type = "boolean: whether to disable the beep when the script runs successfully", default = false }
     },
     code = function(self, args)
         alce.executionCallback = function(this, _, succeeded)
@@ -58,7 +58,7 @@ cheattable.clearChildren = fn({
     returns = "none",
     positional = true,
     schema = {
-        memoryRecord = { type = "any", required = true }
+        memoryRecord = { type = "MemoryRecord: the memory record whose children should be destroyed", required = true }
     },
     code = function(self, memoryRecord)
         local count = memoryRecord.Count
@@ -73,8 +73,8 @@ cheattable.clearChildrenByDesc = fn({
     returns = "none",
     positional = true,
     schema = {
-        desc = { type = "string", required = true },
-        addressList = { type = "any", default = nil }
+        desc = { type = "string: the description of the memory record to find", required = true },
+        addressList = { type = "AddressList: optional address list to search in", default = nil }
     },
     code = function(self, desc, addressList)
         local al = addressList or getAddressList()
@@ -114,9 +114,9 @@ cheattable.createRecord = fn({
     returns = "the newly created MemoryRecord",
     positional = false,
     schema = {
-        parent = { type = "any", default = nil },
-        description = { type = "string", default = nil },
-        vtype = { type = "any", default = vtDword },
+        parent = { type = "MemoryRecord: the parent memory record to attach the new record to", default = nil },
+        description = { type = "string: the description of the new memory record", default = nil },
+        vtype = { type = "value type: the value type of the new memory record (e.g., vtByte, vtDword)", default = vtDword },
         address = {
             validate = function(v) return v == nil or validators.isAddresslike(v) or validators.isNonBlankString(v) end,
             default = nil
@@ -129,7 +129,7 @@ cheattable.createRecord = fn({
             end,
             default = nil
         },
-        saveToTable = { type = "boolean", default = false },
+        saveToTable = { type = "boolean: whether the created record should be saved to the table", default = false },
     },
     code = function(self, args)
         local mr = AddressList.createMemoryRecord()
@@ -172,10 +172,10 @@ cheattable.createHeader = fn({
     returns = "the newly created MemoryRecord",
     positional = false,
     schema = {
-        parent = { type = "any", default = nil },
-        description = { type = "string", default = nil },
-        showCollapseButtons = { type = "boolean", default = false },
-        saveToTable = { type = "boolean", default = false },
+        parent = { type = "MemoryRecord: the parent memory record to attach the new header to", default = nil },
+        description = { type = "string: the description of the new header", default = nil },
+        showCollapseButtons = { type = "boolean: whether to show collapse buttons on the header", default = false },
+        saveToTable = { type = "boolean: whether the created header should be saved to the table", default = false },
     },
     code = function(self, args)
         local mr = AddressList.createMemoryRecord()

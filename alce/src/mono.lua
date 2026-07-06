@@ -26,8 +26,8 @@ mono.Method = {
         returns = "self",
         schema = {
             methodID = { validate = validators.isPositiveInteger, required = true },
-            name = { type = "string" },
-            flags = { type = "number" }
+            name = { type = "string: the name of the mono method" },
+            flags = { type = "integer: the flags of the mono method" }
         },
         code = function(self, args)
             local methodID = args.methodID
@@ -56,8 +56,8 @@ mono.Method = {
         returns = "Method",
         schema = {
             methodID = { validate = validators.isPositiveInteger },
-            name = { type = "string" },
-            flags = { type = "number" }
+            name = { type = "string: the name of the mono method" },
+            flags = { type = "integer: the flags of the mono method" }
         },
         code = function(self, args)
             local instance = {}
@@ -184,7 +184,7 @@ mono.Class = {
         schema = {
             assemblyNameOrImage = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end, required = true },
             className = { validate = validators.isNonBlankString, required = true },
-            namespace = { type = "string" },
+            namespace = { type = "string: the namespace of the mono class" },
             getParents = { type = "boolean" }
         },
         code = function(self, args)
