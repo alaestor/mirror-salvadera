@@ -1,4 +1,4 @@
-local alce = require("alce.src.globals")
+local alce = require("./globals")
 
 alce.monoscript = {
     __doc = [[
@@ -42,6 +42,10 @@ for k, v in pairs(_G) do
 end
 
 -- sort name arrays alphabetically
-for _,group in pairs(alce.monoscript) do table.sort(group.names) end
+for _,group in pairs(alce.monoscript) do
+    if type(group) == 'table' and group.names then
+        table.sort(group.names)
+    end
+end
 
 return alce.monoscript

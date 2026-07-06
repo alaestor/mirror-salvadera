@@ -1,7 +1,7 @@
-local fn = require("alce.src.fn").fn
-local member_fn = require("alce.src.fn").member_fn
-local validators = require("alce.src.validators")
-local alce = require("alce.src.globals")
+local fn = require("./fn").fn
+local member_fn = require("./fn").member_fn
+local validators = require("./validators")
+local alce = require("./globals")
 
 local T = {}
 
@@ -15,7 +15,13 @@ T.List = {
 
     new = member_fn({
         doc = "Creates a new T.List representation at the given baseAddress.",
-        code = function(self, baseAddress, optional_indexFrom, optional_indexBy, optional_offsetItems, optional_offsetSize)
+        code = function(self, args)
+            local baseAddress = args.baseAddress
+            local optional_indexFrom = args.optional_indexFrom
+            local optional_indexBy = args.optional_indexBy
+            local optional_offsetItems = args.optional_offsetItems
+            local optional_offsetSize = args.optional_offsetSize
+
             assert(validators.isAddresslike(baseAddress), 'alce.mono.T.List.new(): invalid argument: baseAddress: ' .. tostring(baseAddress))
             assert((not optional_indexFrom) or validators.isOffsetlike(optional_indexFrom), 'alce.mono.T.List.new(): invalid argument: optional_indexFrom')
             assert((not optional_indexBy) or validators.isOffsetlike(optional_indexBy), 'alce.mono.T.List.new(): invalid argument: optional_indexBy')
@@ -38,6 +44,7 @@ T.List = {
 
     newFromChain = member_fn({
         doc = "Convenience constructor that returns new T.List that aliases the result from `readPointerChain(...)`",
+        positional = true,
         code = function(self, ...)
             return self:new(alce.readPointerChain(...))
         end,
@@ -53,7 +60,8 @@ T.List = {
 
     atUnsafe = member_fn({
         doc = "Returns address of the Nth element at index (starting from zero) without bounds checking.",
-        code = function(self, index)
+        code = function(self, args)
+            local index = args.index
             local itemBase = readPointer(self.baseAddress + self.offset.items)
             return readPointer(itemBase + self.indexFrom + (index * self.indexBy))
         end,
@@ -61,17 +69,20 @@ T.List = {
 
     at = member_fn({
         doc = "Returns address of the Nth element at index (starting from zero) with bounds checking.",
-        code = function(self, index)
+        code = function(self, args)
+            local index = args.index
             assert(validators.isAddresslike(self.baseAddress), 'alce.mono.T.List.at(): invalid state: baseAddress: ' .. tostring(self.baseAddress))
             assert(validators.isNonNegativeInteger(index), 'alce.mono.T.List.at(): invalid argument: index: ' .. tostring(index))
             assert(index < self:size(), 'alce.mono.T.List.at(): invalid argument: index is out of bounds')
-            return self:atUnsafe(index)
+            return self:atUnsafe({ index = index })
         end,
     }),
 
     iterator = member_fn({
         doc = "Returns an iterator which returns the value of the list item from optional_start to optional_end.",
-        code = function(self, optional_start, optional_end)
+        code = function(self, args)
+            local optional_start = args.optional_start
+            local optional_end = args.optional_end
             local i = optional_start or 0
             local size = self:size()
             local e = optional_end or size
@@ -84,7 +95,7 @@ T.List = {
                 if i < e then
                     assert(i < self:size(), 'line ' .. tostring(info.currentline) .. ': alce.mono.T.List.iterator(): iterator went out of bounds during iteration... Size changed?')
                     i = i + 1
-                    return i, self:atUnsafe(i - 1)
+                    return i, self:atUnsafe({ index = i - 1 })
                 end
             end
         end,
@@ -92,9 +103,12 @@ T.List = {
 
     instanceIterator = member_fn({
         doc = "Convenience method wraps the result of the iterator in `alceClass:instance`, returning object instance aliases rather than addresses.",
-        code = function(self, alceClass, optional_start, optional_end)
+        code = function(self, args)
+            local alceClass = args.alceClass
+            local optional_start = args.optional_start
+            local optional_end = args.optional_end
             assert(alce.isCallable(alceClass.instance), 'alce.mono.T.List.instanceIterator(): invalid argument: alceClass must have an Instance method.')
-            local iter = self:iterator(optional_start, optional_end)
+            local iter = self:iterator({ optional_start = optional_start, optional_end = optional_end })
             return function()
                 local i, r = iter()
                 if r then return i, alceClass:instance(r)

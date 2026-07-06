@@ -1,5 +1,5 @@
-local fn = require("alce.src.fn").fn
-local alce = require("alce.src.globals")
+local fn = require("./fn").fn
+local alce = require("./globals")
 
 local validators = {}
 

@@ -1,9 +1,9 @@
-local fn = require("alce.src.fn").fn
-local member_fn = require("alce.src.fn").member_fn
-local validators = require("alce.src.validators")
-local alce = require("alce.src.globals")
-local mono_plumbing = require("alce.src.mono_plumbing")
-local mono_t = require("alce.src.mono_t")
+local fn = require("./fn").fn
+local member_fn = require("./fn").member_fn
+local validators = require("./validators")
+local alce = require("./globals")
+local mono_plumbing = require("./mono_plumbing")
+local mono_t = require("./mono_t")
 
 local mono = {
     __doc = "Mono porcelain helpers for ergonomic interaction with Mono types.",
@@ -146,31 +146,32 @@ mono.Method = {
             maybe_instance = { type = "number: optional instance address" },
             ["..."] = { type = "any: positional arguments" }
         },
-        code = function(self, maybe_instance, ...)
+        code = function(self, args)
+            local maybe_instance = args.maybe_instance
+            local raw_args = args["..."] or {}
             assert(self.id and self.parameters, 'alce.mono.Method.call(): malformed method; not initialized?')
 
-            local raw_args = {...}
             local pcount = #raw_args
             assert(pcount == #(self.parameters), 'alce.mono.Method.call(): called with the wrong number of parameters')
             assert(self:isStatic() or validators.isAddresslike(maybe_instance), 'alce.mono.Method.call(): non-static method was called without an instance')
 
             self:compile()
 
-            local args = {}
+            local args_list = {}
             for i = 1, pcount do
                 local arg = raw_args[i]
                 assert(arg ~= nil, 'alce.mono.Method.call(): argument ' .. tostring(i) .. ' was nil... Did you mean `0` or `false`?')
                 if type(arg) == 'table' then
                     assert(arg.type and alce.T[arg.type] and arg.value ~= nil, 'alce.mono.Method.call(): argument ' .. tostring(i) .. ' was a malformed table; tables must be {type=,value=}')
-                    args[i] = arg
+                    args_list[i] = arg
                 else
-                    args[i] = alce.T.fromMono(self.parameters[i].type)(arg)
+                    args_list[i] = alce.T.fromMono(self.parameters[i].type)(arg)
                 end
             end
 
             local result, exception, vtype = self:callUnsafe({
                 maybe_instance = maybe_instance,
-                maybe_args = args
+                maybe_args = args_list
             })
             assert(not exception, 'alce.mono.Method.call(): exception: ' .. tostring(exception))
             return result

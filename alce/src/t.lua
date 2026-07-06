@@ -1,7 +1,7 @@
-local fn = require("alce.src.fn").fn
-local validators = require("alce.src.validators")
-local alce = require("alce.src.globals")
-local vt = require("alce.src.vt")
+local fn = require("./fn").fn
+local validators = require("./validators")
+local alce = require("./globals")
+local vt = require("./vt")
 
 local T = {
     __doc = [[
@@ -31,8 +31,8 @@ local T = {
 }
 
 -- Populate T with VTypeHelpers
-for _, v in pairs(vt.basicTypeStrings) do
-    local t = vt.VTypeHelper:new(v)
+for _, v in ipairs(vt.basicTypeStrings) do
+    local t = vt.VTypeHelper:new({ basicTypeString = v })
     for _, lookupKey in pairs({t.name, t.vtName, t.vType}) do
         assert(not T[lookupKey], 'alce.T: key already exists: ' .. tostring(lookupKey))
         T[lookupKey] = t

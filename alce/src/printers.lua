@@ -1,6 +1,6 @@
-local fn = require("alce.src.fn").fn
-local fmt = require("alce.src.fmt")
-local alce = require("alce.src.globals")
+local fn = require("./fn").fn
+local fmt = require("./fmt")
+local alce = require("./globals")
 
 local printers = {}
 

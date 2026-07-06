@@ -1,7 +1,7 @@
-local fn = require("alce.src.fn").fn
-local member_fn = require("alce.src.fn").member_fn
-local validators = require("alce.src.validators")
-local alce = require("alce.src.globals")
+local fn = require("./fn").fn
+local member_fn = require("./fn").member_fn
+local validators = require("./validators")
+local alce = require("./globals")
 
 local vt = {
     __doc = [[
@@ -79,7 +79,8 @@ vt.VTypeHelper.new = member_fn({
             validate = function(v) return validators.isNonBlankString(v) end
         }
     },
-    code = function(self, basicTypeString)
+    code = function(self, args)
+        local basicTypeString = args.basicTypeString
         local vts = 'vt' .. basicTypeString:sub(1,1):upper() .. basicTypeString:sub(2)
         local vt_global = _G[vts]
         assert(validators.isInteger(vt_global), 'alce.T.VType(): invalid argument: basicTypeString: no global variable named ' .. tostring(vts) )
@@ -122,7 +123,8 @@ vt.VTypeHelper.asInvokeArgument = member_fn({
     schema = {
         value = { type = "any value: the value to wrap", required = true }
     },
-    code = function(self, value)
+    code = function(self, args)
+        local value = args.value
         return {type = self.vType, value = value}
     end,
 })
@@ -137,7 +139,8 @@ vt.VTypeHelper.read = member_fn({
             validate = function(v) return validators.isAddresslike(v) end
         }
     },
-    code = function(self, address)
+    code = function(self, args)
+        local address = args.address
         assert(self.readUnsafe, 'alce.T.VType.read(): no read function for type ' .. self.name)
         return self.readUnsafe(address)
     end,
@@ -154,7 +157,9 @@ vt.VTypeHelper.write = member_fn({
         },
         value = { type = "any value: the value to write", required = true }
     },
-    code = function(self, address, value)
+    code = function(self, args)
+        local address = args.address
+        local value = args.value
         assert(self.readUnsafe, 'alce.T.VType.write(): no read function for type ' .. self.name)
         return self.writeUnsafe(address, value)
     end,

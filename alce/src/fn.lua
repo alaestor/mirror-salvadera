@@ -1,5 +1,5 @@
-local alce = require("alce.src.globals")
-local arg_parser = require("alce.src.arg_parser")
+local alce = require("./globals")
+local arg_parser = require("./arg_parser")
 
 local function fn(config)
     local func = {
