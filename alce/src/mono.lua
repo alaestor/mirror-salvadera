@@ -266,7 +266,164 @@ mono.Class = {
         code = function(self, ...)
             return self:instance({ baseAddress = alce.safeChain(...) })
         end
-    })
+    }),
+}
+
+mono.ClassTable = {
+    __doc = "A table that loads and holds the mono classes you specify, associated by name, in the form of alce.mono.Class",
+
+    new = fn({
+        doc = "creates a new mono class table instance",
+        returns = "ClassTable",
+        schema = {
+            optional_keyPrefixAssembly = { type = "string" },
+            optional_keyPrefixNamespace = { type = "string" },
+        },
+        code = function(self, args)
+            local instance = {
+                _internal = {
+                    targetList = {},
+                    isLoaded = false,
+                    keyPrefixAssembly = args.optional_keyPrefixAssembly,
+                    keyPrefixNamespace = args.optional_keyPrefixNamespace,
+                }
+            }
+            setmetatable(instance, { __index = mono.ClassTable })
+            return instance
+        end
+    }),
+
+    add = member_fn({
+        doc = "accepts explicit add({ {image, class[, namespace]}, ... })",
+        returns = "self",
+        schema = {
+            targets = { type = "table" }
+        },
+        code = function(self, args)
+            assert(not self._internal.isLoaded, 'alce.mono.ClassTable.add(): cannot add while table is loaded. Try calling unload() first?')
+            local entries = args.targets or {}
+            alce.debug('alce.mono.ClassTable.add(): added targets: ' .. alce.fmt.table(entries))
+            for _, entry in ipairs(entries) do
+                table.insert(self._internal.targetList, entry)
+            end
+            return self
+        end
+    }),
+
+    addFromImage = member_fn({
+        doc = "convenience abstraction: addFromImage(image, (class | {class, namespace}), ...)",
+        returns = "self",
+        schema = {
+            image = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end },
+            targets = { type = "table" }
+        },
+        code = function(self, args)
+            assert(not self._internal.isLoaded, 'alce.mono.ClassTable.addFromImage(): cannot add while table is loaded. Try calling unload() first?')
+            local image = args.image
+            local items = args.targets or {}
+            for _, item in ipairs(items) do
+                if type(item) == 'table' then
+                    table.insert(self._internal.targetList, { image, item[1], item[2] })
+                else
+                    table.insert(self._internal.targetList, { image, item, nil })
+                end
+            end
+            return self
+        end
+    }),
+
+    isLoaded = member_fn({
+        doc = "checks if the class table is loaded",
+        returns = "boolean",
+        code = function(self)
+            return self._internal.isLoaded == true
+        end
+    }),
+
+    load = member_fn({
+        doc = "loads the classes specified in the target list",
+        returns = "self",
+        schema = {
+            optional_getParents = { type = "boolean" }
+        },
+        code = function(self, args)
+            alce.debug('alce.mono.ClassTable.load(): called.')
+            assert(not self:isLoaded(), 'alce.mono.ClassTable.load(): already loaded. Forget to call :unload()?')
+            self._internal.isLoaded = true
+            local assemblies = mono_plumbing.enumAssemblies()
+            local r = {}
+            for _, target in ipairs(self._internal.targetList) do
+                local assemblyNameOrImage, className, namespace = unpack(target)
+                local assemblyName = type(assemblyNameOrImage) == 'string' and assemblyNameOrImage or mono_plumbing.image_get_name(assemblyNameOrImage)
+                if not assemblies[assemblyName] then
+                    assemblies[assemblyName] = mono_plumbing.getImage(assemblyName, assemblies)
+                end
+                local c = mono.Class.new({
+                    assemblyNameOrImage = assemblies[assemblyName],
+                    className = className,
+                    optional_namespace = namespace,
+                    optional_getParents = args.optional_getParents
+                })
+                if c then
+                    local keyPrefixA = self._internal.keyPrefixAssembly and assemblyName .. '.' or ''
+                    local keyPrefixB = self._internal.keyPrefixNamespace and c.namespace .. '.' or ''
+                    local key = keyPrefixA .. keyPrefixB .. className
+                    if r[key] then
+                        alce.warn('alce.mono.ClassTable.load(): Overwriting duplicate key: "' .. key .. '" (try enabling assembly or namespace prefixing?)')
+                    end
+                    r[key] = c
+                end
+            end
+            for k, v in pairs(r) do
+                self[k] = v
+            end
+            return self
+        end
+    }),
+
+    loadWithParents = member_fn({
+        doc = "convenience shorthand for self:load({ optional_getParents = true })",
+        returns = "self",
+        code = function(self)
+            return self:load({ optional_getParents = true })
+        end
+    }),
+
+    unload = member_fn({
+        doc = "unloads the class table",
+        returns = "self",
+        code = function(self)
+            alce.debug('alce.mono.ClassTable.unload(): called.')
+            if not self:isLoaded() then
+                alce.warn('alce.mono.ClassTable.unload() called but nothing was loaded?... Doing it anyways.')
+            end
+            local internal = self._internal
+            -- We need to clear the keys that were added to the instance
+            for k, v in pairs(self) do
+                if type(v) == 'table' and v._type == 'fn_structured_function' then
+                    -- This is one of our methods, don't clear it
+                elseif k ~= '_internal' then
+                    self[k] = nil
+                end
+            end
+            self._internal = internal
+            self._internal.isLoaded = false
+            return self
+        end
+    }),
+
+    clear = member_fn({
+        doc = "clears the target list and unloads if necessary",
+        returns = "self",
+        code = function(self)
+            alce.debug('alce.mono.ClassTable.clear(): called.')
+            if self:isLoaded() then
+                self:unload()
+            end
+            self._internal.targetList = {}
+            return self
+        end
+    }),
 }
 
 return mono
