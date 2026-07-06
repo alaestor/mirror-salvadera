@@ -8,6 +8,10 @@ utils.readPointerChain = fn({
     doc = "reads a chain of pointers starting from the given pointer and following the provided offsets",
     returns = "nil|address",
     positional = true,
+    schema = {
+        pointer = { type = "address", required = true },
+        offsets = { type = "number...", required = false }
+    },
     code = function(self, pointer, ...)
         assert(validators.isAddresslike(pointer), 'alce.readPointerChain(): invalid argument: pointer')
         local currentPtr = readPointer(pointer)
@@ -30,6 +34,10 @@ utils.safeChain = fn({
     doc = "reads a chain of pointers and asserts the resulting address isAddressLike",
     returns = "address",
     positional = true,
+    schema = {
+        pointer = { type = "address", required = true },
+        offsets = { type = "number...", required = false }
+    },
     code = function(self, pointer, ...)
         local info = debug.getinfo(2, "Sl")
         local result = self.readPointerChain(pointer, ...)
@@ -61,6 +69,9 @@ utils.prune = fn({
     doc = "recursively nils keys with empty tables",
     returns = "nil",
     positional = true,
+    schema = {
+        tbl = { type = "table", required = true }
+    },
     code = function(self, tbl)
         local function prune_recursive(tbl)
             if type(tbl) ~= "table" then return end

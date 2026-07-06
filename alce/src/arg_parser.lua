@@ -1,5 +1,5 @@
-
 local function parse_args(self, input)
+    input = input or {}
     local schema = self.schema or {}
     local out = {}
 

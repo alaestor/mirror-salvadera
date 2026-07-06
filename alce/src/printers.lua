@@ -6,7 +6,12 @@ local printers = {}
 
 printers.inspect = fn({
     doc = [[Prints the table formatted by fmt.table]],
+    returns = "nil",
     positional = true,
+    schema = {
+        optional_title = { type = "string|nil", required = false },
+        tbl = { type = "table", required = true }
+    },
     code = function(self, optional_title, tbl)
         if type(optional_title) ~= 'string' then
             if tbl == nil then
@@ -30,7 +35,12 @@ printers.inspect = fn({
 
 printers.inspectKeys = fn({
     doc = [[print a sorted array of the table's keys]],
+    returns = "nil",
     positional = true,
+    schema = {
+        optional_title = { type = "string|nil", required = false },
+        tbl = { type = "table", required = true }
+    },
     code = function(self, optional_title, tbl)
         if tbl == nil then
             if type(optional_title) == 'table' then
@@ -56,7 +66,11 @@ printers.inspectKeys = fn({
 
 printers.prettyprint = fn({
     doc = [[pretty-stringifies, concatenates, and prints input]],
+    returns = "nil",
     positional = true,
+    schema = {
+        args = { type = "any...", required = true }
+    },
     code = function(self, ...)
         local args = {...}
         local result = ""
@@ -75,7 +89,11 @@ printers.prettyprint = fn({
 
 printers.debug = fn({
     doc = [[print message with source linenumber only if alce.cfg.debug_print is `true`]],
+    returns = "nil",
     positional = true,
+    schema = {
+        args = { type = "any...", required = true }
+    },
     code = function(self, ...)
         local info = debug.getinfo(2, "Sl")
         if alce.cfg.debug_print then
@@ -86,7 +104,11 @@ printers.debug = fn({
 
 printers.warn = fn({
     doc = [[print message with source linenumber only if alce.cfg.warn_print is `true`]],
+    returns = "nil",
     positional = true,
+    schema = {
+        args = { type = "any...", required = true }
+    },
     code = function(self, ...)
         local info = debug.getinfo(2, "Sl")
         if alce.cfg.warn_print then

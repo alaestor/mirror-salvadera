@@ -5,6 +5,7 @@ local function fn(config)
         doc = config.doc or "",
         returns = config.returns or "",
         positional = config.positional or false,
+        member = config.member or false,
         debug = config.debug or {},
         schema = config.schema or {}
     }
@@ -17,13 +18,48 @@ local function fn(config)
 
     setmetatable(func, {
         __call = function(self, ...)
-            local args = ...
+            local varargs = {...}
             -- Integration point for arg_parser
             local alce = require("alce.src.globals")
             local arg_parser = require("alce.src.arg_parser")
 
             if self.positional then
                 return self.code(self, ...)
+            end
+
+            local instance = nil
+            local args = nil
+
+            if self.member then
+                local arg_count = select('#', ...)
+                if arg_count >= 2 then
+                    instance = varargs[1]
+                    args = varargs[2]
+                elseif arg_count == 1 then
+                    local first = varargs[1]
+                    if type(first) == 'table' then
+                        local is_args = false
+                        for k, _ in pairs(self.schema) do
+                            if first[k] ~= nil then
+                                is_args = true
+                                break
+                            end
+                        end
+                        if is_args then
+                            instance = nil
+                            args = first
+                        else
+                            instance = first
+                            args = nil
+                        end
+                    else
+                        instance = first
+                        args = nil
+                    end
+                end
+            else
+                -- Standalone: the first arg (if any) is the args table
+                args = varargs[1]
             end
 
             local parsed_args
@@ -49,8 +85,13 @@ local function fn(config)
                 end
             end
 
-            -- Execute the code with parsed arguments
-            return self.code(self, parsed_args)
+            if self.member then
+                -- Execute the code with instance and parsed arguments
+                return self.code(self, instance, parsed_args)
+            else
+                -- Execute the code with parsed arguments
+                return self.code(self, parsed_args)
+            end
         end
     })
 
@@ -59,12 +100,10 @@ end
 
 local function member_fn(config)
     -- member_fn is designed to be used as a method (e.g. object:method()).
-    -- The __call handler assumes that 'self' (the first argument) is the object instance.
     return fn({
-        positional = true,
-        code = function(fn_obj, instance, ...)
-            -- In member_fn, the 'instance' is passed explicitly as the second argument.
-            -- We wrap the original code to ensure it receives the instance.
+        member = true,
+        positional = config.positional or false,
+        code = function(self, instance, ...)
             return config.code(instance, ...)
         end,
         doc = config.doc,
