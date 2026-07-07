@@ -1,7 +1,7 @@
-local fn = require("./fn").fn
-local validators = require("./validators")
-local alce = require("./globals")
-local vt = require("./vt")
+local fn = require("alce.src../fn").fn
+local validators = require("alce.src../validators")
+local alce = require("alce.src../globals")
+local vt = require("alce.src../vt")
 
 local T = {
     __doc = [[
@@ -54,10 +54,10 @@ alce.cfg.monotype_max_key = max_key
 alce.T = T
 
 T.unsafeFromMono = fn({
-    doc = "returns a VTypeHelper from a monoType, with a warning if it exceeds the lookup key limit",
-    returns = "VTypeHelper",
+    __doc = [[returns a VTypeHelper from a monoType, with a warning if it exceeds the lookup key limit]],
+    __doc_returns = [[VTypeHelper]],
     schema = {
-        monoType = { type = "any", required = true }
+        monoType = { __doc = [[rough type: any - the monoType to convert from]], required = true }
     },
     code = function(self, args)
         local monoType = args.monoType
@@ -69,10 +69,10 @@ T.unsafeFromMono = fn({
 })
 
 T.fromMono = fn({
-    doc = "returns a VTypeHelper from a monoType with a bounds-checking assertion",
-    returns = "VTypeHelper",
+    __doc = [[returns a VTypeHelper from a monoType with a bounds-checking assertion]],
+    __doc_returns = [[VTypeHelper]],
     schema = {
-        monoType = { type = "any", required = true }
+        monoType = { __doc = [[rough type: any - the monoType to convert from]], required = true }
     },
     code = function(self, args)
         local monoType = args.monoType

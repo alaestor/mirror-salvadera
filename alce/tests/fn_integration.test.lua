@@ -8,7 +8,7 @@ local fn_module = require("alce.src.fn")
 test.run_and_report(function()
     test.describe("Structured Function Integration", function()
         local myfunc = fn_module.fn({
-            doc = "Adds two numbers",
+            __doc = "Adds two numbers",
             returns = "number",
             code = function(self, args)
                 return args.a + args.b
@@ -24,7 +24,7 @@ test.run_and_report(function()
         end)
 
         test.it("should maintain metadata", function()
-            test.expect(myfunc.doc).to_eq("Adds two numbers")
+            test.expect(myfunc.__doc).to_eq("Adds two numbers")
             test.expect(myfunc.returns).to_eq("number")
         end)
     end)
@@ -32,7 +32,7 @@ test.run_and_report(function()
     test.describe("Positional Function Integration", function()
         local myfunc = fn_module.fn({
             positional = true,
-            doc = "Adds two numbers positionally",
+            __doc = "Adds two numbers positionally",
             returns = "number",
             code = function(self, a, b)
                 return a + b

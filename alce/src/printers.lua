@@ -1,16 +1,15 @@
-local fn = require("./fn").fn
-local fmt = require("./fmt")
-local alce = require("./globals")
+local fn = require("alce.src../fn").fn
+local fmt = require("alce.src../fmt")
+local alce = require("alce.src../globals")
 
 local printers = {}
 
 printers.inspect = fn({
-    doc = [[Prints the table formatted by fmt.table]],
-    returns = "nil",
+    __doc = [[Prints the table formatted by fmt.table]],
     positional = true,
     schema = {
-        optional_title = { type = "string|nil", required = false },
-        tbl = { type = "table", required = true }
+        optional_title = { __doc = [[string|nil]] },
+        tbl = { __doc = [[table]], required = true }
     },
     code = function(self, optional_title, tbl)
         if type(optional_title) ~= 'string' then
@@ -34,12 +33,11 @@ printers.inspect = fn({
 })
 
 printers.inspectKeys = fn({
-    doc = [[print a sorted array of the table's keys]],
-    returns = "nil",
+    __doc = [[print a sorted array of the table's keys]],
     positional = true,
     schema = {
-        optional_title = { type = "string|nil", required = false },
-        tbl = { type = "table", required = true }
+        optional_title = { __doc = [[string|nil]] },
+        tbl = { __doc = [[table]], required = true }
     },
     code = function(self, optional_title, tbl)
         if tbl == nil then
@@ -65,11 +63,10 @@ printers.inspectKeys = fn({
 })
 
 printers.prettyprint = fn({
-    doc = [[pretty-stringifies, concatenates, and prints input]],
-    returns = "nil",
+    __doc = [[pretty-stringifies, concatenates, and prints input]],
     positional = true,
     schema = {
-        args = { type = "any...", required = true }
+        args = { __doc = [[any...]], required = true }
     },
     code = function(self, ...)
         local args = {...}
@@ -88,11 +85,10 @@ printers.prettyprint = fn({
 })
 
 printers.debug = fn({
-    doc = [[print message with source linenumber only if alce.cfg.debug_print is `true`]],
-    returns = "nil",
+    __doc = [[print message with source linenumber only if alce.cfg.debug_print is `true`]],
     positional = true,
     schema = {
-        args = { type = "any...", required = true }
+        args = { __doc = [[any...]], required = true }
     },
     code = function(self, ...)
         local info = debug.getinfo(2, "Sl")
@@ -103,11 +99,10 @@ printers.debug = fn({
 })
 
 printers.warn = fn({
-    doc = [[print message with source linenumber only if alce.cfg.warn_print is `true`]],
-    returns = "nil",
+    __doc = [[print message with source linenumber only if alce.cfg.warn_print is `true`]],
     positional = true,
     schema = {
-        args = { type = "any...", required = true }
+        args = { __doc = [[any...]], required = true }
     },
     code = function(self, ...)
         local info = debug.getinfo(2, "Sl")

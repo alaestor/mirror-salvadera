@@ -1,6 +1,6 @@
-local fn = require("./fn").fn
-local alce = require("./globals")
-local validators = require("./validators")
+local fn = require("alce.src../fn").fn
+local alce = require("alce.src../globals")
+local validators = require("alce.src../validators")
 
 function onMemRecPreExecute(memrec, newState)
     if memrec.Type == vtAutoAssembler then
@@ -35,161 +35,161 @@ local cheattable = {
     ]];}
 
 cheattable.disableAfterSuccess = fn({
-    doc = [[
+__doc = [[
 Makes disableWithoutExecute() be called on the next MemoryRecord script that runs successfully.
 Can be used at the bottom of an [ENABLE] section to turn a script into a momentary button rather than toggle.
 ]],
-    returns = "none",
-    schema = {
-        disableBeep = { type = "boolean: whether to disable the beep when the script runs successfully", default = false }
-    },
-    code = function(self, args)
-        alce.executionCallback = function(this, _, succeeded)
-            if succeeded then
-                this:disableWithoutExecute()
-                if not args.disableBeep then beep() end
-            end
+schema = {
+    disableBeep = { __doc = [[boolean: whether to disable the beep when the script runs successfully]] }
+},
+code = function(self, args)
+    alce.executionCallback = function(this, _, succeeded)
+        if succeeded then
+            this:disableWithoutExecute()
+            if not args.disableBeep then beep() end
         end
     end
+end
 })
 
 cheattable.clearChildren = fn({
-    doc = "destroy's all children of the given memoryRecord",
-    returns = "none",
-    positional = true,
-    schema = {
-        memoryRecord = { type = "MemoryRecord: the memory record whose children should be destroyed", required = true }
-    },
-    code = function(self, memoryRecord)
-        local count = memoryRecord.Count
-        for i = count - 1, 0, -1 do
-            memoryRecord.Child[i].destroy()
-        end
+__doc = [[destroy's all children of the given memoryRecord]],
+positional = true,
+schema = {
+    memoryRecord = { __doc = [[MemoryRecord: the memory record whose children should be destroyed]], required = true }
+},
+code = function(self, memoryRecord)
+    local count = memoryRecord.Count
+    for i = count - 1, 0, -1 do
+        memoryRecord.Child[i].destroy()
     end
+end
 })
 
 cheattable.clearChildrenByDesc = fn({
-    doc = "finds the MR by description then calls alce.cheattable.clearChildren",
-    returns = "none",
-    positional = true,
-    schema = {
-        desc = { type = "string: the description of the memory record to find", required = true },
-        addressList = { type = "AddressList: optional address list to search in", default = nil }
-    },
-    code = function(self, desc, addressList)
-        local al = addressList or getAddressList()
-        local parent = al.getMemoryRecordByDescription(desc)
-        if parent then
-            cheattable.clearChildren(parent)
-        end
+__doc = [[finds the MR by description then calls alce.cheattable.clearChildren]],
+positional = true,
+schema = {
+    desc = { __doc = [[string: the description of the memory record to find]], required = true },
+    addressList = { __doc = [[AddressList: optional address list to search in]] }
+},
+code = function(self, desc, addressList)
+    local al = addressList or getAddressList()
+    local parent = al.getMemoryRecordByDescription(desc)
+    if parent then
+        cheattable.clearChildren(parent)
     end
+end
 })
 
 cheattable.createRecord = fn({
-    doc = [[
-    Creates a new MemoryRecord and attaches it to `parent`. `address` may be an integer or a string. `offsets` may be an array of integer offsets from `address` such as `{ 0x10, ... }`. `saveToTable` may be a boolean; children created from this function aren't saved by default.
+__doc = [[
+Creates a new MemoryRecord and attaches it to `parent`. `address` may be an integer or a string. `offsets` may be an array of integer offsets from `address` such as `{ 0x10, ... }`. `saveToTable` may be a boolean; children created from this function aren't saved by default.
 
-    `dropDownSettings` is a dict which if not nil must at minimum contain an either an `optionsFrom` string containing the description string from another dropdown MR, or an `options` string formatted as newline-separated pairs e.g. `"value:desc\n..."`. You may optionally provide `noManualInput` `hideNumbers`, and `dontDisplayAsString` booleans.
+`dropDownSettings` is a dict which if not nil must at minimum contain an either an `optionsFrom` string containing the description string from another dropdown MR, or an `options` string formatted as newline-separated pairs e.g. `"value:desc\n..."`. You may optionally provide `noManualInput` `hideNumbers`, and `dontDisplayAsString` booleans.
 
-    Example usage, creating a pointer+offsets MR with a dropdown menu:
-    ```lua
-    local ddsettings = {
-        options = '0:disabled\n1:normal\n2:overclocked',
-        --optionsFrom = "some other MR description", -- if we already set one up and didn't want to duplicate...
-        noManualInput = true,
-        hideNumbers = true,
-        --dontDisplayAsString = false -- displays MR value as dropdown string by default
-    }
-    local newmr = alce.cheattable.createRecord({
-        parent = alce.THIS,
-        description = 'mode',
-        vtype = vtByte,
-        address = baseaddr,
-        offsets = {stateOffset, modeOffset},
-        dropDownSettings = ddsettings
-    })
-    print('the address of mode is ' .. newmr.AddressString)
-    ```
-    ]],
-    returns = "the newly created MemoryRecord",
-    positional = false,
-    schema = {
-        parent = { type = "MemoryRecord: the parent memory record to attach the new record to", default = nil },
-        description = { type = "string: the description of the new memory record", default = nil },
-        vtype = { type = "value type: the value type of the new memory record (e.g., vtByte, vtDword)", default = vtDword },
-        address = {
-            validate = function(v) return v == nil or validators.isAddresslike(v) or validators.isNonBlankString(v) end,
-            default = nil
-        },
-        offsets = { validate = validators.isTable, default = nil },
-        dropDownSettings = {
-            validate = function(v)
-                if v == nil then return true end
-                return validators.isNonBlankString(v.options) or validators.isNonBlankString(v.optionsFrom)
-            end,
-            default = nil
-        },
-        saveToTable = { type = "boolean: whether the created record should be saved to the table", default = false },
+Example usage, creating a pointer+offsets MR with a dropdown menu:
+```lua
+local ddsettings = {
+    options = '0:disabled\n1:normal\n2:overclocked',
+    --optionsFrom = "some other MR description", -- if we already set one up and didn't want to duplicate...
+    noManualInput = true,
+    hideNumbers = true,
+    --dontDisplayAsString = false -- displays MR value as dropdown string by default
+}
+local newmr = alce.cheattable.createRecord({
+    parent = alce.THIS,
+    description = 'mode',
+    vtype = vtByte,
+    address = baseaddr,
+    offsets = {stateOffset, modeOffset},
+    dropDownSettings = ddsettings
+})
+print('the address of mode is ' .. newmr.AddressString)
+```
+]],
+__doc_returns = [[MemoryRecord: the newly created MemoryRecord]],
+positional = false,
+schema = {
+    parent = { __doc = [[MemoryRecord: the parent memory record to attach the new record to]] },
+    description = { __doc = [[string: the description of the new memory record]] },
+    vtype = { __doc = [[value type: the value type of the new memory record (e.g., vtByte, vtDword)]] },
+    address = {
+        __doc = [[address: the memory address or address-like string]],
+        validate = function(v) return v == nil or validators.isAddresslike(v) or validators.isNonBlankString(v) end,
     },
-    code = function(self, args)
-        local mr = AddressList.createMemoryRecord()
-        if validators.isNonBlankString(args.description) then
-            mr.Description = args.description
-        end
-        mr.Type = args.vtype or vtDword
-        mr.DontSave = args.saveToTable ~= true
-        if validators.isAddresslike(args.address) then
-            mr.Address = string.format("%X", args.address)
-        elseif validators.isNonBlankString(args.address) then
-            mr.Address = args.address
-        end
-        if args.offsets then
-            mr.OffsetCount = #args.offsets
-            for i, offset in ipairs(args.offsets) do
-                mr.Offset[i - 1] = offset
-            end
-        end
-        if args.dropDownSettings then
-            if validators.isNonBlankString(args.dropDownSettings.options) then
-                mr.DropDownList.Text = args.dropDownSettings.options
-            elseif validators.isNonBlankString(args.dropDownSettings.optionsFrom) then
-                mr.DropDownLinkedMemrec = args.dropDownSettings.optionsFrom
-            end
-            mr.DropDownDescriptionOnly = args.dropDownSettings.hideNumbers == true
-            mr.DropDownReadOnly = args.dropDownSettings.noManualInput == true
-            mr.DisplayAsDropDownListItem = args.dropDownSettings.dontDisplayAsString ~= true
-        end
-        mr.Options = '[moAllowManualCollapseAndExpand]'
-        if args.parent then
-            mr.appendToEntry(args.parent)
-        end
-        return mr
+    offsets = {
+        __doc = [[table: an array of integer offsets from address]],
+        validate = validators.isTable,
+    },
+    dropDownSettings = {
+        __doc = [[table: dropdown settings (options or optionsFrom)]],
+        validate = function(v)
+            if v == nil then return true end
+            return validators.isNonBlankString(v.options) or validators.isNonBlankString(v.optionsFrom)
+        end,
+    },
+    saveToTable = { __doc = [[boolean: whether the created record should be saved to the table]] },
+},
+code = function(self, args)
+    local mr = AddressList.createMemoryRecord()
+    if validators.isNonBlankString(args.description) then
+        mr.Description = args.description
     end
+    mr.Type = args.vtype or vtDword
+    mr.DontSave = args.saveToTable ~= true
+    if validators.isAddresslike(args.address) then
+        mr.Address = string.format("%X", args.address)
+    elseif validators.isNonBlankString(args.address) then
+        mr.Address = args.address
+    end
+    if args.offsets then
+        mr.OffsetCount = #args.offsets
+        for i, offset in ipairs(args.offsets) do
+            mr.Offset[i - 1] = offset
+        end
+    end
+    if args.dropDownSettings then
+        if validators.isNonBlankString(args.dropDownSettings.options) then
+            mr.DropDownList.Text = args.dropDownSettings.options
+        elseif validators.isNonBlankString(args.dropDownSettings.optionsFrom) then
+            mr.DropDownLinkedMemrec = args.dropDownSettings.optionsFrom
+        end
+        mr.DropDownDescriptionOnly = args.dropDownSettings.hideNumbers == true
+        mr.DropDownReadOnly = args.dropDownSettings.noManualInput == true
+        mr.DisplayAsDropDownListItem = args.dropDownSettings.dontDisplayAsString ~= true
+    end
+    mr.Options = '[moAllowManualCollapseAndExpand]'
+    if args.parent then
+        mr.appendToEntry(args.parent)
+    end
+    return mr
+end
 })
 
 cheattable.createHeader = fn({
-    doc = "Creates a new Group Header MemoryRecord",
-    returns = "the newly created MemoryRecord",
-    positional = false,
-    schema = {
-        parent = { type = "MemoryRecord: the parent memory record to attach the new header to", default = nil },
-        description = { type = "string: the description of the new header", default = nil },
-        showCollapseButtons = { type = "boolean: whether to show collapse buttons on the header", default = false },
-        saveToTable = { type = "boolean: whether the created header should be saved to the table", default = false },
-    },
-    code = function(self, args)
-        local mr = AddressList.createMemoryRecord()
-        if validators.isNonBlankString(args.description) then
-            mr.Description = args.description
-        end
-        if args.parent then
-            mr.appendToEntry(args.parent)
-        end
-        mr.DontSave = args.saveToTable ~= true
-        mr.IsGroupHeader = true
-        mr.Options = args.showCollapseButtons and '[moHideChildren,moAllowManualCollapseAndExpand,moManualExpandCollapse]' or '[moHideChildren,moAllowManualCollapseAndExpand]'
-        return mr
+__doc = [[Creates a new Group Header MemoryRecord]],
+__doc_returns = [[MemoryRecord: the newly created MemoryRecord]],
+positional = false,
+schema = {
+    parent = { __doc = [[MemoryRecord: the parent memory record to attach the new header to]] },
+    description = { __doc = [[string: the description of the new header]] },
+    showCollapseButtons = { __doc = [[boolean: whether to show collapse buttons on the header]] },
+    saveToTable = { __doc = [[boolean: whether the created header should be saved to the table]] },
+},
+code = function(self, args)
+    local mr = AddressList.createMemoryRecord()
+    if validators.isNonBlankString(args.description) then
+        mr.Description = args.description
     end
+    if args.parent then
+        mr.appendToEntry(args.parent)
+    end
+    mr.DontSave = args.saveToTable ~= true
+    mr.IsGroupHeader = true
+    mr.Options = args.showCollapseButtons and '[moHideChildren,moAllowManualCollapseAndExpand,moManualExpandCollapse]' or '[moHideChildren,moAllowManualCollapseAndExpand]'
+    return mr
+end
 })
 
 return cheattable

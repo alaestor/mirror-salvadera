@@ -7,7 +7,7 @@ local fn_module = require("alce.src.fn")
 test.run_and_report(function()
     test.describe("alce.src.fn.fn factory", function()
         local config = {
-            doc = "A simple addition function",
+            __doc = "A simple addition function",
             code = function(self, args)
                 return args.a + args.b
             end,
@@ -24,7 +24,7 @@ test.run_and_report(function()
         end)
 
         test.it("should preserve metadata from configuration", function()
-            test.expect(myfunc.doc).to_eq("A simple addition function")
+            test.expect(myfunc.__doc).to_eq("A simple addition function")
             test.expect(myfunc.schema).to_be_type("table")
         end)
 
@@ -40,7 +40,7 @@ test.run_and_report(function()
 
     test.describe("alce.src.fn.member_fn factory", function()
         local config = {
-            doc = "A simple member function",
+            __doc = "A simple member function",
             code = function(instance, value)
                 return instance.base + value
             end,
@@ -63,7 +63,7 @@ test.run_and_report(function()
         end)
 
         test.it("should preserve metadata from configuration", function()
-            test.expect(my_member_fn.doc).to_eq("A simple member function")
+            test.expect(my_member_fn.__doc).to_eq("A simple member function")
             test.expect(my_member_fn.schema).to_be_type("table")
         end)
     end)

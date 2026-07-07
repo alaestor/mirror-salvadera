@@ -1,123 +1,123 @@
-local fn = require("./fn").fn
-local alce = require("./globals")
+local fn = require("alce.src../fn").fn
+local alce = require("alce.src../globals")
 
 local validators = {}
 
 validators.isInteger = fn({
-    doc = "checks if value is an integer",
-    returns = "boolean",
+    __doc = [[any: checks if value is an integer]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'number' and math.type(value) == 'integer'
     end
 })
 
 validators.isPositiveInteger = fn({
-    doc = "checks if value is a positive integer",
-    returns = "boolean",
+    __doc = [[any: checks if value is a positive integer]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'number' and math.type(value) == 'integer' and value > 0
     end
 })
 
 validators.isNonNegativeInteger = fn({
-    doc = "checks if value is a non-negative integer",
-    returns = "boolean",
+    __doc = [[any: checks if value is a non-negative integer]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'number' and math.type(value) == 'integer' and value >= 0
     end
 })
 
 validators.isFloat = fn({
-    doc = "checks if value is a float",
-    returns = "boolean",
+    __doc = [[any: checks if value is a float]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'number' and math.type(value) == 'float'
     end
 })
 
 validators.isNonNegativeFloat = fn({
-    doc = "checks if value is a non-negative float",
-    returns = "boolean",
+    __doc = [[any: checks if value is a non-negative float]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'number' and math.type(value) == 'float' and value >= 0.0
     end
 })
 
 validators.isFiniteNumber = fn({
-    doc = "checks if value is a finite number",
-    returns = "boolean",
+    __doc = [[any: checks if value is a finite number]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'number' and value == value and value ~= math.huge and value ~= -math.huge
     end
 })
 
 validators.isNonEmptyString = fn({
-    doc = "checks if value is a non-empty string",
-    returns = "boolean",
+    __doc = [[any: checks if value is a non-empty string]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'string' and value ~= ''
     end
 })
 
 validators.isNonBlankString = fn({
-    doc = "checks if value is a non-blank string",
-    returns = "boolean",
+    __doc = [[any: checks if value is a non-blank string]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'string' and string.find(value, '%S') ~= nil
     end
 })
 
 validators.isTable = fn({
-    doc = "checks if value is a table",
-    returns = "boolean",
+    __doc = [[any: checks if value is a table]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'table'
     end
 })
 
 validators.isEmptyTable = fn({
-    doc = "checks if value is an empty table",
-    returns = "boolean",
+    __doc = [[any: checks if value is an empty table]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'table' and next(value) == nil
     end
 })
 
 validators.isNonEmptyTable = fn({
-    doc = "checks if value is a non-empty table",
-    returns = "boolean",
+    __doc = [[any: checks if value is a non-empty table]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         return type(value) == 'table' and next(value) ~= nil
     end
 })
 
 validators.isZeroEmptyOrNil = fn({
-    doc = "checks if value is zero, empty table, blank string, or nil",
-    returns = "boolean",
+    __doc = [[any: checks if value is zero, empty table, blank string, or nil]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         local t = type(value)
         return t == nil or (t == 'number' and value == 0) or self.isEmptyTable(value) or (not self.isNonBlankString(value))
@@ -125,10 +125,10 @@ validators.isZeroEmptyOrNil = fn({
 })
 
 validators.isCallable = fn({
-    doc = "checks if value is callable",
-    returns = "boolean",
+    __doc = [[any: checks if value is callable]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true } },
     code = function(self, value)
         if type(value) == 'function' then return true end
         local mt = getmetatable(value)
@@ -137,78 +137,78 @@ validators.isCallable = fn({
 })
 
 validators.isBetween = fn({
-    doc = "checks if value is between minimum and maximum",
-    returns = "boolean",
+    __doc = [[any: checks if value is between minimum and maximum]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" }, minimum = { type = "number" }, maximum = { type = "number" } },
+    schema = { value = { __doc = [[any: the value to check]], required = true }, minimum = { __doc = [[number: the minimum value]], required = true }, maximum = { __doc = [[number: the maximum value]], required = true } },
     code = function(self, value, minimum, maximum)
         return value > minimum and value < maximum
     end
 })
 
 validators.isSignedOffsetlike = fn({
-    doc = "checks that the value isInteger and within positive and negative optional_tooFarBoundary (or alce.cfg.isOffset_tooFarBoundary)",
-    returns = "boolean",
+    __doc = [[any: checks that the value isInteger and within positive and negative tooFarBoundary (or alce.cfg.isOffset_tooFarBoundary)]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" }, optional_tooFarBoundary = { type = "number", default = nil } },
-    code = function(self, value, optional_tooFarBoundary)
-        local boundary = (optional_tooFarBoundary or alce.cfg.isOffset_tooFarBoundary)
+    schema = { value = { __doc = [[any: the value to check]], required = true }, tooFarBoundary = { __doc = [[number: the boundary value]], default = nil } },
+    code = function(self, value, tooFarBoundary)
+        local boundary = (tooFarBoundary or alce.cfg.isOffset_tooFarBoundary)
         return self.isInteger(value) and value > -boundary and value < boundary
     end
 })
 
 validators.isOffsetlike = fn({
-    doc = "checks that the value isNonNegativeInteger and less than optional_tooFarBoundary (or alce.cfg.isOffset_tooFarBoundary)",
-    returns = "boolean",
+    __doc = [[any: checks that the value isNonNegativeInteger and less than tooFarBoundary (or alce.cfg.isOffset_tooFarBoundary)]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" }, optional_tooFarBoundary = { type = "number", default = nil } },
-    code = function(self, value, optional_tooFarBoundary)
-        return self.isNonNegativeInteger(value) and value < (optional_tooFarBoundary or alce.cfg.isOffset_tooFarBoundary)
+    schema = { value = { __doc = [[any: the value to check]], required = true }, tooFarBoundary = { __doc = [[number: the boundary value]], default = nil } },
+    code = function(self, value, tooFarBoundary)
+        return self.isNonNegativeInteger(value) and value < (tooFarBoundary or alce.cfg.isOffset_tooFarBoundary)
     end
 })
 
 validators.isAddresslike = fn({
-    doc = "checks that the value isInteger and greater than optional_nearNullBoundary (or alce.cfg.isAddress_nearNullBoundary) and less than optional_userspaceBoundary (or alce.cfg.isAddress_userspaceBoundary)",
-    returns = "boolean",
+    __doc = [[any: checks that the value isInteger and greater than nearNullBoundary (or alce.cfg.isAddress_nearNullBoundary) and less than userspaceBoundary (or alce.cfg.isAddress_userspaceBoundary)]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { value = { type = "any" }, optional_nearNullBoundary = { type = "number", default = nil }, optional_userspaceBoundary = { type = "number", default = nil } },
-    code = function(self, value, optional_nearNullBoundary, optional_userspaceBoundary)
-        return self.isInteger(value) and value > (optional_nearNullBoundary or alce.cfg.isAddress_nearNullBoundary) and value < (optional_userspaceBoundary or (targetIs64Bit() and alce.cfg.isAddress_userspaceBoundary64 or alce.cfg.isAddress_userspaceBoundary32))
+    schema = { value = { __doc = [[any: the value to check]], required = true }, nearNullBoundary = { __doc = [[number: the near-null boundary]], default = nil }, userspaceBoundary = { __doc = [[number: the userspace boundary]], default = nil } },
+    code = function(self, value, nearNullBoundary, userspaceBoundary)
+        return self.isInteger(value) and value > (nearNullBoundary or alce.cfg.isAddress_nearNullBoundary) and value < (userspaceBoundary or (targetIs64Bit() and alce.cfg.isAddress_userspaceBoundary64 or alce.cfg.isAddress_userspaceBoundary32))
     end
 })
 
 validators.hasFlag = fn({
-    doc = "equivalent to (flags & flag) == flag",
-    returns = "boolean",
+    __doc = [[any: equivalent to (flags & flag) == flag]],
+    __doc_returns = [[boolean]],
     positional = true,
-    schema = { flag = { type = "number" }, flags = { type = "number" } },
+    schema = { flag = { __doc = [[number: the flag to check for]], required = true }, flags = { __doc = [[number: the bit-flags to check]], required = true } },
     code = function(self, flag, flags)
         return (flags & flag) == flag
     end
 })
 
 validators.check = fn({
-    doc = "passthru assert with source line (checks positive, e.g. assert(value) or assert(optional_checker(value)))",
-    returns = "any",
+    __doc = [[any: passthru assert with source line (checks positive, e.g. assert(value) or assert(checker(value)))]],
+    __doc_returns = [[any]],
     positional = true,
-    schema = { value = { type = "any" }, optional_checker = { type = "any", default = nil } },
-    code = function(self, value, optional_checker)
+    schema = { value = { __doc = [[any: the value to check]], required = true }, checker = { __doc = [[any: the checker function]], default = nil } },
+    code = function(self, value, checker)
         local info = debug.getinfo(2, "Sl")
-        assert(optional_checker == nil or self.isCallable(optional_checker), 'line ' .. tostring(info.currentline) .. ': alce.check: invalid argument: optional_checker not callable.')
-        assert(optional_checker and optional_checker(value) or value, 'line ' .. tostring(info.currentline) .. ': alce.check( ' .. tostring(value) .. ' )')
+        assert(checker == nil or self.isCallable(checker), 'line ' .. tostring(info.currentline) .. ': alce.check: invalid argument: checker not callable.')
+        assert(checker and checker(value) or value, 'line ' .. tostring(info.currentline) .. ': alce.check( ' .. tostring(value) .. ' )')
         return value
     end
 })
 
 validators.ncheck = fn({
-    doc = "passthru negation-assert with source line (checks negative, e.g. assert(not value) or assert(not optional_checker(value)))",
-    returns = "any",
+    __doc = [[any: passthru negation-assert with source line (checks negative, e.g. assert(not value) or assert(not checker(value)))]],
+    __doc_returns = [[any]],
     positional = true,
-    schema = { value = { type = "any" }, optional_checker = { type = "any", default = nil } },
-    code = function(self, value, optional_checker)
+    schema = { value = { __doc = [[any: the value to check]], required = true }, checker = { __doc = [[any: the checker function]], default = nil } },
+    code = function(self, value, checker)
         local info = debug.getinfo(2, "Sl")
-        assert(optional_checker == nil or self.isCallable(optional_checker), 'line ' .. tostring(info.currentline) .. ': alce.check: invalid argument: optional_checker not callable.')
-        assert(not (optional_checker and optional_checker(value) or value), 'line ' .. tostring(info.currentline) .. ': alce.ncheck( ' .. tostring(value) .. ' )')
+        assert(checker == nil or self.isCallable(checker), 'line ' .. tostring(info.currentline) .. ': alce.check: invalid argument: checker not callable.')
+        assert(not (checker and checker(value) or value), 'line ' .. tostring(info.currentline) .. ': alce.ncheck( ' .. tostring(value) .. ' )')
         return value
     end
 })

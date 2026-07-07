@@ -1,34 +1,33 @@
-local fn = require("./fn").fn
-local member_fn = require("./fn").member_fn
-local validators = require("./validators")
-local alce = require("./globals")
-local mono_plumbing = require("./mono_plumbing")
-local mono_t = require("./mono_t")
+local fn = require("alce.src../fn").fn
+local member_fn = require("alce.src../fn").member_fn
+local validators = require("alce.src../validators")
+local alce = require("alce.src../globals")
+local mono_plumbing = require("alce.src../mono_plumbing")
+local mono_t = require("alce.src../mono_t")
 
 local mono = {
-    __doc = "Mono porcelain helpers for ergonomic interaction with Mono types.",
+    __doc = [[Mono porcelain helpers for ergonomic interaction with Mono types.]],
 }
 
 mono.T = mono_t
 
 mono.init = fn({
-    doc = "Helper that asserts the process is attached and tries to launch the mono data collector if it's not connected already.",
-    returns = "nil",
+    __doc = [[Helper that asserts the process is attached and tries to launch the mono data collector if it's not connected already.]],
     code = function(self, args)
         return mono_plumbing.init()
     end
 })
 
 mono.Method = {
-    __doc = "A representation of, and call-abstraction for, mono methods.",
+    __doc = [[A representation of, and call-abstraction for, mono methods.]],
 
     init = member_fn({
-        doc = "initializes a mono method",
-        returns = "self",
+        __doc = [[initializes a mono method]],
+        __doc_returns = [[self]],
         schema = {
             methodID = { validate = validators.isPositiveInteger, required = true },
-            name = { type = "string: the name of the mono method" },
-            flags = { type = "integer: the flags of the mono method" }
+            name = { __doc = [[string: the name of the mono method]], required = true },
+            flags = { __doc = [[integer: the flags of the mono method]], required = true }
         },
         code = function(self, args)
             assert(type(args) == 'table', 'alce.mono.Method.init(): expected argument table')
@@ -54,12 +53,12 @@ mono.Method = {
     }),
 
     new = fn({
-        doc = "creates a new mono method instance",
-        returns = "Method",
+        __doc = [[creates a new mono method instance]],
+        __doc_returns = [[Method]],
         schema = {
-            methodID = { validate = validators.isPositiveInteger },
-            name = { type = "string: the name of the mono method" },
-            flags = { type = "integer: the flags of the mono method" }
+            methodID = { validate = validators.isPositiveInteger, required = true },
+            name = { __doc = [[string: the name of the mono method]], required = true },
+            flags = { __doc = [[integer: the flags of the mono method]], required = true }
         },
         code = function(self, args)
             local instance = {}
@@ -82,16 +81,16 @@ mono.Method = {
     }),
 
     isStatic = member_fn({
-        doc = "checks if the method is static",
-        returns = "boolean",
+        __doc = [[checks if the method is static]],
+        __doc_returns = [[boolean]],
         code = function(self)
             return alce.hasFlag(METHOD_ATTRIBUTE_STATIC, self.flags)
         end
     }),
 
     getAttributes = member_fn({
-        doc = "gets the names of global monoscript.lua constants representing the method attributes",
-        returns = "table",
+        __doc = [[gets the names of global monoscript.lua constants representing the method attributes]],
+        __doc_returns = [[table]],
         code = function(self)
             local t = {}
             for _, flagName in pairs(alce.monoscript.methodAttribute.names) do
@@ -104,8 +103,8 @@ mono.Method = {
     }),
 
     compile = member_fn({
-        doc = "compiles the method for invocation",
-        returns = "number: the compiled address",
+        __doc = [[compiles the method for invocation]],
+        __doc_returns = [[number: the compiled address]],
         code = function(self)
             if not self.address then
                 assert(validators.isPositiveInteger(self.id), 'alce.mono.Method.compile(): malformed method; not initialized?')
@@ -118,11 +117,11 @@ mono.Method = {
     }),
 
     callUnsafe = member_fn({
-        doc = "invokes the method without safety checks. Arguments must be in CE's invoke format",
-        returns = "any, string, number",
+        __doc = [[invokes the method without safety checks. Arguments must be in CE's invoke format]],
+        __doc_returns = [[any, string, number]],
         schema = {
-            maybe_instance = { type = "number: optional instance address" },
-            maybe_args = { type = "table: optional arguments table" }
+            maybe_instance = { __doc = [[number: optional instance address]] },
+            maybe_args = { __doc = [[table: optional arguments table]] }
         },
         code = function(self, args)
             assert(type(args) == 'table', 'alce.mono.Method.callUnsafe(): expected argument table')
@@ -140,11 +139,11 @@ mono.Method = {
     }),
 
     call = member_fn({
-        doc = "invokes the method after safety checks and argument processing",
-        returns = "any",
+        __doc = [[invokes the method after safety checks and argument processing]],
+        __doc_returns = [[any]],
         schema = {
-            maybe_instance = { type = "number: optional instance address" },
-            ["..."] = { type = "any: positional arguments" }
+            maybe_instance = { __doc = [[number: optional instance address]] },
+            ["..."] = { __doc = [[any: positional arguments]] }
         },
         code = function(self, args)
             local maybe_instance = args.maybe_instance
@@ -180,16 +179,16 @@ mono.Method = {
 }
 
 mono.Class = {
-    __doc = "A representation of a mono class type which will fetch, sort, and process its methods and fields into appropriate subtables.",
+    __doc = [[A representation of a mono class type which will fetch, sort, and process its methods and fields into appropriate subtables.]],
 
     new = fn({
-        doc = "creates a new mono class instance",
-        returns = "Class",
+        __doc = [[creates a new mono class instance]],
+        __doc_returns = [[Class]],
         schema = {
             assemblyNameOrImage = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end, required = true },
             className = { validate = validators.isNonBlankString, required = true },
-            namespace = { type = "string: the namespace of the mono class" },
-            getParents = { type = "boolean" }
+            namespace = { __doc = [[string: the namespace of the mono class]] },
+            getParents = { __doc = [[boolean: whether to get parents]] }
         },
         code = function(self, args)
             local assemblyNameOrImage = args.assemblyNameOrImage
@@ -251,10 +250,10 @@ mono.Class = {
     }),
 
     instance = member_fn({
-        doc = "returns a proxy object (ObjectAlias) for an instance of this class",
-        returns = "ObjectAlias",
+        __doc = [[creates a proxy object (ObjectAlias) for an instance of this class]],
+        __doc_returns = [[ObjectAlias]],
         schema = {
-            baseAddress = { validate = validators.isAddresslike }
+            baseAddress = { validate = validators.isAddresslike, required = true }
         },
         code = function(self, args)
             assert(type(args) == 'table', 'alce.mono.Class.instance(): expected argument table')
@@ -266,8 +265,8 @@ mono.Class = {
     }),
 
     instanceFrom = member_fn({
-        doc = "convenient shorthand for self:instance(alce.safeChain(...))",
-        returns = "ObjectAlias",
+        __doc = [[convenient shorthand for self:instance(alce.safeChain(...))]],
+        __doc_returns = [[ObjectAlias]],
         code = function(self, ...)
             return self:instance({ baseAddress = alce.safeChain(...) })
         end
@@ -275,14 +274,14 @@ mono.Class = {
 }
 
 mono.ClassTable = {
-    __doc = "A table that loads and holds the mono classes you specify, associated by name, in the form of alce.mono.Class",
+    __doc = [[A table that loads and holds the mono classes you specify, associated by name, in the form of alce.mono.Class]],
 
     new = fn({
-        doc = "creates a new mono class table instance",
-        returns = "ClassTable",
+        __doc = [[creates a new mono class table instance]],
+        __doc_returns = [[ClassTable]],
         schema = {
-            keyPrefixAssembly = { type = "string" },
-            keyPrefixNamespace = { type = "string" },
+            keyPrefixAssembly = { __doc = [[string: prefix for assembly names]], required = true },
+            keyPrefixNamespace = { __doc = [[string: prefix for namespace names]], required = true },
         },
         code = function(self, args)
             local instance = {
@@ -299,10 +298,10 @@ mono.ClassTable = {
     }),
 
     add = member_fn({
-        doc = "accepts explicit add({ {image, class[, namespace]}, ... })",
-        returns = "self",
+        __doc = [[accepts explicit add({ {image, class[, namespace]}, ... })]],
+        __doc_returns = [[self]],
         schema = {
-            targets = { type = "table" }
+            targets = { __doc = [[table: list of targets to add]], required = true }
         },
         code = function(self, args)
             assert(type(args) == 'table', 'alce.mono.ClassTable.add(): expected argument table')
@@ -317,11 +316,11 @@ mono.ClassTable = {
     }),
 
     addFromImage = member_fn({
-        doc = "convenience abstraction: addFromImage(image, (class | {class, namespace}), ...)",
-        returns = "self",
+        __doc = [[convenience abstraction: addFromImage(image, (class | {class, namespace}), ...)]],
+        __doc_returns = [[self]],
         schema = {
-            image = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end },
-            targets = { type = "table" }
+            image = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end, required = true },
+            targets = { __doc = [[table: list of targets]], required = true }
         },
         code = function(self, args)
             assert(type(args) == 'table', 'alce.mono.ClassTable.addFromImage(): expected argument table')
@@ -340,18 +339,18 @@ mono.ClassTable = {
     }),
 
     isLoaded = member_fn({
-        doc = "checks if the class table is loaded",
-        returns = "boolean",
+        __doc = [[checks if the class table is loaded]],
+        __doc_returns = [[boolean]],
         code = function(self)
             return self._internal.isLoaded == true
         end
     }),
 
     load = member_fn({
-        doc = "loads the classes specified in the target list",
-        returns = "self",
+        __doc = [[loads the classes specified in the target list]],
+        __doc_returns = [[self]],
         schema = {
-            getParents = { type = "boolean" }
+            getParents = { __doc = [[boolean: whether to get parents]] }
         },
         code = function(self, args)
             alce.debug('alce.mono.ClassTable.load(): called.')
@@ -389,16 +388,16 @@ mono.ClassTable = {
     }),
 
     loadWithParents = member_fn({
-        doc = "convenience shorthand for self:load({ optional_getParents = true })",
-        returns = "self",
+        __doc = [[convenience shorthand for self:load({ getParents = true })]],
+        __doc_returns = [[self]],
         code = function(self)
-            return self:load({ optional_getParents = true })
+            return self:load({ getParents = true })
         end
     }),
 
     unload = member_fn({
-        doc = "unloads the class table",
-        returns = "self",
+        __doc = [[unloads the class table]],
+        __doc_returns = [[self]],
         code = function(self)
             alce.debug('alce.mono.ClassTable.unload(): called.')
             if not self:isLoaded() then
@@ -420,8 +419,8 @@ mono.ClassTable = {
     }),
 
     clear = member_fn({
-        doc = "clears the target list and unloads if necessary",
-        returns = "self",
+        __doc = [[clears the target list and unloads if necessary]],
+        __doc_returns = [[self]],
         code = function(self)
             alce.debug('alce.mono.ClassTable.clear(): called.')
             if self:isLoaded() then

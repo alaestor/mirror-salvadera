@@ -1,7 +1,7 @@
-local fn = require("./fn").fn
-local member_fn = require("./fn").member_fn
-local validators = require("./validators")
-local alce = require("./globals")
+local fn = require("alce.src../fn").fn
+local member_fn = require("alce.src../fn").member_fn
+local validators = require("alce.src../validators")
+local alce = require("alce.src../globals")
 
 local vt = {
     __doc = [[
@@ -70,11 +70,11 @@ For working with a vartype such as: finding its monotypes, reading and writing, 
 }
 
 vt.VTypeHelper.new = member_fn({
-    doc = "creates a new VType helper",
-    returns = "VType",
+    __doc = [[creates a new VType helper]],
+    __doc_returns = [[VTypeHelper: the created VType helper]],
     schema = {
         basicTypeString = {
-            type = "basic type string: the name of the type without prefix (e.g. 'dword')",
+            __doc = [[string: the name of the type without prefix (e.g. 'dword')]],
             required = true,
             validate = function(v) return validators.isNonBlankString(v) end
         }
@@ -98,16 +98,16 @@ vt.VTypeHelper.new = member_fn({
 })
 
 vt.VTypeHelper.getMonotypes = member_fn({
-    doc = "returns the monotypes associated with the VType",
-    returns = "nil or array of integers",
+    __doc = [[returns the monotypes associated with the VType]],
+    __doc_returns = [[table: array of monotype integers]],
     code = function(self)
         return alce.keysFromValue(self.vType, monoTypeToVartypeLookup)
     end,
 })
 
 vt.VTypeHelper.getMonotypesAsStrings = member_fn({
-    doc = "returns a sorted array of strings representing the monotypes",
-    returns = "nil or array of strings",
+    __doc = [[returns a sorted array of strings representing the monotypes]],
+    __doc_returns = [[table: array of monotype name strings]],
     code = function(self)
         local keys = alce.keysFromValue(self.vType, monoTypeToVartypeLookup)
         local r = {}
@@ -118,10 +118,10 @@ vt.VTypeHelper.getMonotypesAsStrings = member_fn({
 })
 
 vt.VTypeHelper.asInvokeArgument = member_fn({
-    doc = "formats the VType and a value for invoking methods",
-    returns = "dict {type=, value=}",
+    __doc = [[formats the VType and a value for invoking methods]],
+    __doc_returns = [[table: a table containing the vType and value for invoke]],
     schema = {
-        value = { type = "any value: the value to wrap", required = true }
+        value = { __doc = [[any: the value to wrap]], required = true }
     },
     code = function(self, args)
         local value = args.value
@@ -130,11 +130,11 @@ vt.VTypeHelper.asInvokeArgument = member_fn({
 })
 
 vt.VTypeHelper.read = member_fn({
-    doc = "reads a value from the specified address using the VType",
-    returns = "nil or the value",
+    __doc = [[reads a value from the specified address using the VType]],
+    __doc_returns = [[any: the value read from the address]],
     schema = {
         address = {
-            type = "memory address: the address to read from",
+            __doc = [[number: the address to read from]],
             required = true,
             validate = function(v) return validators.isAddresslike(v) end
         }
@@ -147,15 +147,15 @@ vt.VTypeHelper.read = member_fn({
 })
 
 vt.VTypeHelper.write = member_fn({
-    doc = "writes a value to the specified address using the VType",
-    returns = "boolean: whether or not it succeeded",
+    __doc = [[writes a value to the specified address using the VType]],
+    __doc_returns = [[boolean: whether the write succeeded]],
     schema = {
         address = {
-            type = "memory address: the address to write to",
+            __doc = [[number: the address to write to]],
             required = true,
             validate = function(v) return validators.isAddresslike(v) end
         },
-        value = { type = "any value: the value to write", required = true }
+        value = { __doc = [[any: the value to write]], required = true }
     },
     code = function(self, args)
         local address = args.address

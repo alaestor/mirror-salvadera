@@ -1,12 +1,12 @@
-local alce = require("./globals")
-local arg_parser = require("./arg_parser")
+local alce = require("alce.src../globals")
+local arg_parser = require("alce.src../arg_parser")
 
 local function fn(config)
     local func = {
         _type = "fn_structured_function",
         code = config.code,
-        doc = config.doc or "",
-        returns = config.returns or "",
+	    __doc = config.__doc or "",
+	    __doc_returns = config.returns or "",
         positional = config.positional or false,
         member = config.member or false,
         debug = config.debug or {},
@@ -106,8 +106,8 @@ local function member_fn(config)
         code = function(self, instance, ...)
             return config.code(instance, ...)
         end,
-        doc = config.doc,
-        returns = config.returns,
+        __doc = config.__doc,
+        __doc_returns = config.returns,
         schema = config.schema
     })
 end

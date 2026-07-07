@@ -72,7 +72,7 @@ local function parse_schema(schema)
     local rows = ""
 
     for arg_name, details in pairs(schema) do
-        local type_raw = details.type or "unknown"
+        local type_raw = details.__doc or "unknown"
         local type_part, desc_part = type_raw:match("([^:]+):?(.*)")
 
         local type_str = type_part or "unknown"
@@ -100,7 +100,7 @@ local function traverse(ns, full_path, level)
         local fmt_mod = require("alce.src.fmt")
         output = output .. fmt_mod.table({
             tbl = ns,
-            optional_keysToIgnore = { ["__doc"] = true, ["__doc_verbatim"] = true }
+            useKeysToIgnore = { ["__doc"] = true, ["__doc_verbatim"] = true }
         })
         output = output .. "\n```\n\n"
     end
@@ -113,11 +113,11 @@ local function traverse(ns, full_path, level)
             if v._type == "fn_structured_function" then
                 -- Handle Structured Function
                 output = output .. string.format("### %s\n\n", current_path)
-                if v.doc then
-                    output = output .. string.format("%s\n\n", trim(v.doc))
+                if v.__doc then
+                    output = output .. string.format("%s\n\n", trim(v.__doc))
                 end
-                if v.returns and v.returns ~= "" then
-                    local ret_text = v.returns
+                if v.__doc_returns and v.__doc_returns ~= "" then
+                    local ret_text = v.__doc_returns
                     if ret_text:match("^%a+$") or ret_text:match("^%d+$") then
                         ret_text = string.format("`%s`", ret_text)
                     else

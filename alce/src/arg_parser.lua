@@ -15,13 +15,14 @@ local function parse_args(self, input)
         if exists then
             local val = input[key]
             -- Validate
-            if spec.validate then
-                local ok, err = spec.validate(val)
-                if not ok then
-                    error(string.format("invalid arg '%s': %s", key, tostring(err)))
-                end
-            end
-            out[key] = val
+    -- Validate
+    if spec.validate then
+        local ok, err = spec.validate(val)
+        if not ok then
+            error(string.format("invalid arg '%s': %s", key, tostring(err)))
+        end
+    end
+    out[key] = val
         elseif spec.default ~= nil then
             -- Handle lazy defaults
             if type(spec.default) == "function" then

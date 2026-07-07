@@ -1,20 +1,19 @@
-local fn = require("./fn").fn
-local validators = require("./validators")
-local alce = require("./globals")
+local fn = require("alce.src../fn").fn
+local validators = require("alce.src../validators")
+local alce = require("alce.src../globals")
 
 local memory = {}
 
 memory.AllocateSymbols_register = fn({
-    doc = "Registers symbols defined in a context, optionally filtered by a list of names.",
-    returns = "nil",
+    __doc = [[void: Registers symbols defined in a context, optionally filtered by a list of names.]],
     schema = {
-        context = { type = "table", required = true, validate = function(v) return validators.isNonEmptyTable(v) end },
-        optional_names = { type = "table", default = nil, validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
+        context = { __doc = [[table: context containing symbols and registration state]], required = true, validate = function(v) return validators.isNonEmptyTable(v) end },
+        names = { __doc = [[table: optional list of names to register]], default = nil, validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
     },
     code = function(self, args)
         local context = args.context
-        local optional_names = args.optional_names
-        local namesToRegister = optional_names or context.names
+        local names = args.names
+        local namesToRegister = names or context.names
 
         for _, name in ipairs(namesToRegister) do
             assert(context.addresses[name], "alce.memory.AllocateSymbols.register(): invalid argument: invalid name: " .. tostring(name))
@@ -29,23 +28,22 @@ memory.AllocateSymbols_register = fn({
 })
 
 memory.AllocateSymbols_unregister = fn({
-    doc = "Unregisters symbols defined in a context, optionally filtered by a list of names.",
-    returns = "nil",
+    __doc = [[void: Unregisters symbols defined in a context, optionally filtered by a list of names.]],
     schema = {
-        context = { type = "table", required = true, validate = function(v) return validators.isNonEmptyTable(v) end },
-        optional_names = { type = "table", default = nil, validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
+        context = { __doc = [[table: context containing symbols and registration state]], required = true, validate = function(v) return validators.isNonEmptyTable(v) end },
+        names = { __doc = [[table: optional list of names to unregister]], default = nil, validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
     },
     code = function(self, args)
         local context = args.context
-        local optional_names = args.optional_names
+        local names = args.names
         local namesToUnregister = {}
 
-        if optional_names == nil then
+        if names == nil then
             for name, _ in pairs(context.registered) do
                 table.insert(namesToUnregister, name)
             end
         else
-            namesToUnregister = optional_names
+            namesToUnregister = names
         end
 
         for _, name in ipairs(namesToUnregister) do
@@ -58,11 +56,11 @@ memory.AllocateSymbols_unregister = fn({
 })
 
 memory.AllocateSymbols = fn({
-    doc = [[Allocates contiguous memory aliased by name calculated by type size and provides easy read/write access to them. Also lets you register/unregister the names as global symbols with an optional prefix.
+    __doc = [[Allocates contiguous memory aliased by name calculated by type size and provides easy read/write access to them. Also lets you register/unregister the names as global symbols with an optional prefix.
 
 > **Note:** the registered symbols will have all non-alphanumeric characters replaced with underscores. Symbols will be registered by default at creation unless you the optional parameter `doNotRegister` is true.
 
-Exposes methods `register(optional_names)` and `unregister(optional_names)`. `optional_names` may be nil or an array of valid and unprefixed names. If nil, the functions perform the action for all symbols for all symbols not already registered/unregistered.
+Exposes methods `register(names)` and `unregister(names)`. `names` may be nil or an array of valid and unprefixed names. If nil, the functions perform the action for all symbols for all symbols not already registered/unregistered.
 
 The object also exposes internal state through __ prefixed keys. You probably shouldn't write to these but I'm a line of documentation, not a cop.
 - `__size` - the total size of the memory region in bytes.
@@ -101,13 +99,13 @@ print('level is a ' .. region.__types['health'].name)
 print('ending health: ', region.health)
 region:unregister()
 ```]],
-    returns = "table (proxy)",
+    __doc_returns = [[table: proxy object providing access to allocated memory]],
     schema = {
-        packets = { type = "table", required = true, validate = function(v) return validators.isNonEmptyTable(v) end },
-        doNotRegister = { type = "boolean", default = false },
-        symbolPrefix = { type = "string", default = "", validate = function(v) return validators.isNonBlankString(v) or v == "" end },
-        baseAddress = { type = "address", default = nil, validate = function(v) return v == nil or validators.isAddresslike(v) end },
-        protection = { type = "boolean", default = nil, validate = function(v) return v == nil or type(v) == "boolean" end },
+        packets = { __doc = [[table: list of packets defining memory layout {type, value}]], required = true, validate = function(v) return validators.isNonEmptyTable(v) end },
+        doNotRegister = { __doc = [[boolean: if true, symbols aren't registered on creation]], default = false },
+        symbolPrefix = { __doc = [[string: prefix added to registered symbol names]], default = "", validate = function(v) return validators.isNonBlankString(v) or v == "" end },
+        baseAddress = { __doc = [[address: optional specific address to allocate at]], default = nil, validate = function(v) return v == nil or validators.isAddresslike(v) end },
+        protection = { __doc = [[boolean: optional memory protection setting]], default = nil, validate = function(v) return v == nil or type(v) == "boolean" end },
     },
     code = function(self, args)
         local packets = args.packets
@@ -165,12 +163,12 @@ region:unregister()
             __index = function(tbl, key)
                 if key:sub(1, 2) == "__" then return internal[key:sub(3)]
                 elseif key == 'register' then return function(optional_self, ...) -- self is unnecessary: workaround to allow both `:` and `.` calling
-                        if optional_self == tbl then return memory.AllocateSymbols_register({ context = internal, optional_names = ... })
-                        else return memory.AllocateSymbols_register({ context = internal, optional_names = optional_self, ... }) end
+                        if optional_self == tbl then return memory.AllocateSymbols_register({ context = internal, names = ... })
+                        else return memory.AllocateSymbols_register({ context = internal, names = optional_self, ... }) end
                     end
                 elseif key == 'unregister' then return function(optional_self, ...) -- self is unnecessary: workaround to allow both `:` and `.` calling
-                        if optional_self == tbl then return memory.AllocateSymbols_unregister({ context = internal, optional_names = ... })
-                        else return memory.AllocateSymbols_unregister({ context = internal, optional_names = optional_self, ... }) end
+                        if optional_self == tbl then return memory.AllocateSymbols_unregister({ context = internal, names = ... })
+                        else return memory.AllocateSymbols_unregister({ context = internal, names = optional_self, ... }) end
                     end
                 else
                     local t = internal.types[key]

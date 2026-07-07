@@ -1,7 +1,7 @@
-local fn = require("./fn").fn
-local validators = require("./validators")
-local alce = require("./globals")
-local T = require("./t")
+local fn = require("alce.src../fn").fn
+local validators = require("alce.src../validators")
+local alce = require("alce.src../globals")
+local T = require("alce.src../t")
 
 local mono_plumbing = {}
 
@@ -40,8 +40,7 @@ end
 -- Public API
 
 mono_plumbing.init = fn({
-    doc = "initializes mono state",
-    returns = "nil",
+    __doc = [[initializes mono state]],
     code = function(self)
         assert(alce.isAttached(), 'alce.mono.init(): not attached to process')
         if (monopipe == nil) then
@@ -51,18 +50,18 @@ mono_plumbing.init = fn({
 })
 
 mono_plumbing.invoke = fn({
-    doc = "invokes a mono method",
-    returns = "any|nil, string|nil, string|nil",
+    __doc = [[invokes a mono method]],
+    __doc_returns = [[any|nil, string|nil, string|nil]],
     positional = true,
-    code = function(self, methodID, maybe_instance, maybe_arguments, optional_parameters, optional_flags)
+    code = function(self, methodID, maybe_instance, maybe_arguments, parameters, flags)
         alce.debug('alce.mono.invoke(): invoke_method called')
         assert(validators.isPositiveInteger(methodID), 'alce.mono.invoke(): invalid argument: methodID: '..tostring(methodID))
 
-        local static = ((optional_flags or mono_method_getFlags(methodID)) & METHOD_ATTRIBUTE_STATIC) == METHOD_ATTRIBUTE_STATIC
+        local static = ((flags or mono_method_getFlags(methodID)) & METHOD_ATTRIBUTE_STATIC) == METHOD_ATTRIBUTE_STATIC
         assert(validators.isAddresslike(maybe_instance) or static, 'alce.mono.invoke(): invalid argument: maybe_instance is required for non-static methods')
 
         local argument_count = #maybe_arguments
-        local params = optional_parameters or mono_method_get_parameters(methodID)
+        local params = parameters or mono_method_get_parameters(methodID)
         assert(argument_count == #params, 'alce.mono.invoke(): invalid argument: length of maybe_arguments does not match method parameters')
         for _, arg in ipairs(maybe_arguments) do
             assert(type(arg) == 'table' and arg.type and arg.value ~= nil, 'alce.mono.invoke(): invalid argument: maybe_arguments not well-formed')
@@ -114,10 +113,9 @@ mono_plumbing.invoke = fn({
 })
 
 mono_plumbing.sortByHierarchy = fn({
-    doc = "sorts an array of members by parent hierarchy, from parent to child",
-    returns = "table",
+    __doc = [[sorts an array of members by parent hierarchy, from parent to child]],
     schema = {
-        array = { type = "table", required = true },
+        array = { __doc = [[table]], required = true },
         hierarchy = { validate = validators.isNonEmptyTable, required = true }
     },
     code = function(self, args)
@@ -139,14 +137,14 @@ mono_plumbing.sortByHierarchy = fn({
 })
 
 mono_plumbing.getImage = fn({
-    doc = "gets Image by assemblyName",
-    returns = "number|nil",
+    __doc = [[gets Image by assemblyName]],
+    __doc_returns = [[number|nil]],
     schema = {
-        assemblyName = { type = "string", required = true },
-        optional_enumeratedAssemblies = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
+        assemblyName = { __doc = [[string]], required = true },
+        enumeratedAssemblies = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
     },
     code = function(self, args)
-        local assemblies = args.optional_enumeratedAssemblies or mono_enumAssemblies()
+        local assemblies = args.enumeratedAssemblies or mono_enumAssemblies()
         assert(validators.isNonEmptyTable(assemblies), "alce.mono.getImage(): Couldn't enumerate assemblies. Mono features not active?")
         for _, assembly in ipairs(assemblies) do
             local image = mono_getImageFromAssembly(assembly)
@@ -158,32 +156,32 @@ mono_plumbing.getImage = fn({
 })
 
 mono_plumbing.getClassEx = fn({
-    doc = "finds a class by name in a specific assembly and namespace",
-    returns = "table|nil",
+    __doc = [[finds a class by name in a specific assembly and namespace]],
+    __doc_returns = [[table|nil]],
     schema = {
         assemblyNameOrImage = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end, required = true },
         className = { validate = validators.isNonBlankString, required = true },
-        optional_namespace = { type = "string" }
+        namespace = { __doc = [[string]] }
     },
     code = function(self, args)
         local t = type(args.assemblyNameOrImage)
         local image = t == 'number' and args.assemblyNameOrImage or (t == 'string' and self.getImage({ assemblyName = args.assemblyNameOrImage }) or nil)
         assert(image, "alce.mono.getClassEx(): Failed to get image: '" .. tostring(args.assemblyNameOrImage) .. "'")
         for _, v in ipairs(mono_image_enumClassesEx(image)) do
-            if v.FullName == args.className and (args.optional_namespace and args.optional_namespace == v.NameSpace or true) then return v end
+            if v.FullName == args.className and (args.namespace and args.namespace == v.NameSpace or true) then return v end
         end
-        alce.warn("alce.mono.getClassEx(): No results for getClassEx(" .. tostring(args.assemblyNameOrImage) .. ", " .. args.className .. ((args.optional_namespace and ', "'..args.optional_namespace..'"') or '') .. ")")
+        alce.warn("alce.mono.getClassEx(): No results for getClassEx(" .. tostring(args.assemblyNameOrImage) .. ", " .. args.className .. ((args.namespace and ', "'..args.namespace..'"') or '') .. ")")
         return nil
     end
 })
 
 mono_plumbing.getClass = fn({
-    doc = "returns the class handle for a given class",
-    returns = "number|nil",
+    __doc = [[returns the class handle for a given class]],
+    __doc_returns = [[number|nil]],
     schema = {
-        assemblyNameOrImage = { type = "any", required = true },
-        className = { type = "string", required = true },
-        optional_namespace = { type = "string" }
+        assemblyNameOrImage = { __doc = [[any]], required = true },
+        className = { __doc = [[string]], required = true },
+        namespace = { __doc = [[string]] }
     },
     code = function(self, args)
         local r = self.getClassEx(args)
@@ -192,14 +190,14 @@ mono_plumbing.getClass = fn({
 })
 
 mono_plumbing.method_getSignature = fn({
-    doc = "returns the signature of a method",
-    returns = "table",
+    __doc = [[returns the signature of a method]],
+    __doc_returns = [[table]],
     schema = {
         methodID = { validate = validators.isPositiveInteger, required = true },
-        optional_methodName = { type = "string" }
+        methodName = { __doc = [[string]] }
     },
     code = function(self, args)
-        local name = args.optional_methodName and validators.isNonBlankString(args.optional_methodName) and args.optional_methodName or mono_method_getName(args.methodID)
+        local name = args.methodName and validators.isNonBlankString(args.methodName) and args.methodName or mono_method_getName(args.methodID)
         local paramtypes_raw, paramnames, returntype = mono_method_getSignature(args.methodID)
         local paramtypes = string.gsub(paramtypes_raw, '/', '+')
         local t = { types = paramtypes, paramnames = paramnames, returntype = returntype }
@@ -218,8 +216,8 @@ mono_plumbing.method_getSignature = fn({
 })
 
 mono_plumbing.class_getParentHierarchy = fn({
-    doc = "returns array of class IDs ordered from parent to child",
-    returns = "table",
+    __doc = [[returns array of class IDs ordered from parent to child]],
+    __doc_returns = [[table]],
     schema = {
         classID = { validate = validators.isPositiveInteger, required = true }
     },
@@ -235,25 +233,26 @@ mono_plumbing.class_getParentHierarchy = fn({
 })
 
 mono_plumbing.getProcessedFields = fn({
-    doc = "enumerates and processes fields for a class",
-    returns = "table|nil",
+    __doc = [[enumerates and processes fields for a class]],
+    __doc_returns = [[table|nil]],
     schema = {
-        classID = { type = "any", required = true },
-        optional_getParents = { type = "boolean" },
-        optional_hierarchy = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end },
-        optional_keepMetadata = { type = "boolean" },
-        optional_keepFields = { type = "boolean" }
+        classID = { __doc = [[any]], required = true },
+        getParents = { __doc = [[boolean]] },
+        hierarchy = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end },
+        keepMetadata = { __doc = [[boolean]] },
+        keepFields = { __doc = [[boolean]] }
     },
     code = function(self, args)
-        local fields = mono_class_enumFields(args.classID, args.optional_getParents)
+        local fields = mono_class_enumFields(args.classID, args.getParents)
         if type(fields) ~= 'table' then
             alce.warn('alce.mono.getProcessedFields(): failed to lookup fields')
             return nil
         end
-        if args.optional_getParents == true then
+        if args.getParents == true then
             fields = self.sortByHierarchy({
                 array = fields,
-                hierarchy = args.optional_hierarchy or self.class_getParentHierarchy({ classID = args.classID })
+                hierarchy = args.hierarchy or self.class_getParentHierarchy({ classID = args.classID })
+            })
             })
         end
         local startOffset = mono_structfields_getStartOffset(fields)
@@ -263,13 +262,13 @@ mono_plumbing.getProcessedFields = fn({
             const = {},
             static = {},
             offset = {},
-            meta = args.optional_keepMetadata == true and {
+            meta = args.keepMetadata == true and {
                 const = {},
                 static = {},
                 offset = {},
             } or nil,
             constToKey = {},
-            fields = args.optional_keepFields == true and fields or nil,
+            fields = args.keepFields == true and fields or nil,
         }
         local function warnIfCollides(subtable, f)
             if not t[subtable][f.name] then return nil end
@@ -281,7 +280,7 @@ mono_plumbing.getProcessedFields = fn({
         local function store(ts, f, val)
             warnIfCollides(ts, f)
             t[ts][f.name] = val
-            if args.optional_keepMetadata == true then
+            if args.keepMetadata == true then
                 t.meta[ts][f.name] = {}
                 local meta = t.meta[ts][f.name]
                 for _, k in pairs({ 'typename', 'type', 'monotype', 'flags' }) do meta[k] = f[k] end
@@ -302,23 +301,23 @@ mono_plumbing.getProcessedFields = fn({
 })
 
 mono_plumbing.getProcessedMethods = fn({
-    doc = "enumerates and processes methods for a class",
-    returns = "table|nil",
+    __doc = [[enumerates and processes methods for a class]],
+    __doc_returns = [[table|nil]],
     schema = {
-        classID = { type = "any" },
-        optional_getParents = { type = "boolean" },
-        optional_hierarchy = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
+        classID = { type = "any", required = true },
+        getParents = { type = "boolean" },
+        hierarchy = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
     },
     code = function(self, args)
-        local methods = mono_class_enumMethods(args.classID, args.optional_getParents)
+        local methods = mono_class_enumMethods(args.classID, args.getParents)
         if type(methods) ~= 'table' then
             alce.warn('alce.mono.getProcessedMethods(): Failed to enumerate methods')
             return nil
         end
-        if args.optional_getParents == true then
+        if args.getParents == true then
             methods = self.sortByHierarchy({
                 array = methods,
-                hierarchy = args.optional_hierarchy or self.class_getParentHierarchy({ classID = args.classID })
+                hierarchy = args.hierarchy or self.class_getParentHierarchy({ classID = args.classID })
             })
         end
         local t = {}
@@ -334,11 +333,11 @@ mono_plumbing.getProcessedMethods = fn({
 })
 
 mono_plumbing.ObjectAlias = fn({
-    doc = "creates a proxy object for a mono object",
-    returns = "proxy object",
+    __doc = [[creates a proxy object for a mono object]],
+    __doc_returns = [[proxy object]],
     schema = {
-        alceClass = { type = "table" },
-        baseAddress = { validate = validators.isAddresslike }
+        alceClass = { type = "table", required = true },
+        baseAddress = { validate = validators.isAddresslike, required = true }
     },
     code = function(self, args)
         local internal = {
