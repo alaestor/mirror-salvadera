@@ -41,6 +41,7 @@ test.run_and_report(function()
     test.describe("alce.src.fn.member_fn factory", function()
         local config = {
             __doc = "A simple member function",
+            positional = true,
             code = function(instance, value)
                 return instance.base + value
             end,
@@ -48,7 +49,6 @@ test.run_and_report(function()
                 value = { type = "number" }
             }
         }
-
         local my_member_fn = fn_module.member_fn(config)
         local mock_instance = { base = 100, my_member_fn = my_member_fn }
 

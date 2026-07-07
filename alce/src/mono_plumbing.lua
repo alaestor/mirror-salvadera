@@ -253,7 +253,6 @@ mono_plumbing.getProcessedFields = fn({
                 array = fields,
                 hierarchy = args.hierarchy or self.class_getParentHierarchy({ classID = args.classID })
             })
-            })
         end
         local startOffset = mono_structfields_getStartOffset(fields)
         if not startOffset then startOffset = targetIs64Bit() and 0x10 or 0x8 end

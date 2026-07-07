@@ -9,13 +9,13 @@ test.run_and_report(function()
     test.describe("Structured Function Integration", function()
         local myfunc = fn_module.fn({
             __doc = "Adds two numbers",
-            returns = "number",
+            __doc_returns = "number",
             code = function(self, args)
                 return args.a + args.b
             end,
             schema = {
-                a = { type = "number", required = true },
-                b = { type = "number", required = true }
+                a = { __doc = "number", required = true },
+                b = { __doc = "number", required = true }
             }
         })
 
@@ -25,7 +25,7 @@ test.run_and_report(function()
 
         test.it("should maintain metadata", function()
             test.expect(myfunc.__doc).to_eq("Adds two numbers")
-            test.expect(myfunc.returns).to_eq("number")
+            test.expect(myfunc.__doc_returns).to_eq("number")
         end)
     end)
 
@@ -33,7 +33,7 @@ test.run_and_report(function()
         local myfunc = fn_module.fn({
             positional = true,
             __doc = "Adds two numbers positionally",
-            returns = "number",
+            __doc_returns = "number",
             code = function(self, a, b)
                 return a + b
             end
@@ -57,8 +57,8 @@ test.run_and_report(function()
                 return args.a + args.b
             end,
             schema = {
-                a = { type = "number", required = true },
-                b = { type = "number", required = true }
+                a = { __doc = "number", required = true },
+                b = { __doc = "number", required = true }
             }
         })
 

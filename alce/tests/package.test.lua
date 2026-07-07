@@ -1,4 +1,5 @@
-local alce = require("alce")
+require("alce.tools.env_mock")
+local alce = require("alce.src.main")
 
 assert(type(alce) == "table", "alce should be a table")
 

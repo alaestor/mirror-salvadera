@@ -6,7 +6,8 @@ local test_utils = {
     stats = {
         passed = 0,
         failed = 0,
-    }
+    },
+    current_suite = "unknown"
 }
 
 local function fail(msg)
@@ -50,6 +51,7 @@ function test_utils.run_and_report(suite_fn)
     local filename = info and info.source or "unknown"
     -- Remove '@' prefix if present
     filename = filename:gsub("^@", "")
+    test_utils.current_suite = filename
 
     suite_fn()
     test_utils.report(filename)
@@ -65,7 +67,7 @@ function test_utils.it(name, test_fn)
     else
         test_utils.stats.failed = test_utils.stats.failed + 1
         print("  ✗ " .. name .. "\n    Error: " .. tostring(err))
-        test_utils.report()
+        test_utils.report(test_utils.current_suite)
         os.exit(1) -- Fail hard and fast
     end
 end
@@ -80,7 +82,7 @@ function test_utils.it_throws(name, test_fn)
     else
         test_utils.stats.failed = test_utils.stats.failed + 1
         print("  ✗ " .. name .. "\n    Error: Expected error but function completed successfully")
-        test_utils.report()
+        test_utils.report(test_utils.current_suite)
         os.exit(1)
     end
 end

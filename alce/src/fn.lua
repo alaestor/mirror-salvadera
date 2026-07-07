@@ -1,12 +1,12 @@
-local alce = require("alce.src../globals")
-local arg_parser = require("alce.src../arg_parser")
+local alce = require("alce.src.globals")
+local arg_parser = require("alce.src.arg_parser")
 
 local function fn(config)
     local func = {
         _type = "fn_structured_function",
         code = config.code,
-	    __doc = config.__doc or "",
-	    __doc_returns = config.returns or "",
+        __doc = config.__doc or "",
+        __doc_returns = config.__doc_returns or "",
         positional = config.positional or false,
         member = config.member or false,
         debug = config.debug or {},
@@ -56,6 +56,9 @@ local function fn(config)
                         instance = first
                         args = nil
                     end
+                else
+                    instance = nil
+                    args = nil
                 end
             else
                 -- Standalone: the first arg (if any) is the args table
@@ -107,7 +110,7 @@ local function member_fn(config)
             return config.code(instance, ...)
         end,
         __doc = config.__doc,
-        __doc_returns = config.returns,
+        __doc_returns = config.__doc_returns,
         schema = config.schema
     })
 end
