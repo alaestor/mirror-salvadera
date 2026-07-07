@@ -7,7 +7,7 @@ local printers = {}
 printers.inspect = fn({
     __doc = [[Prints the table formatted by fmt.table]],
     positional = true,
-    schema = {
+    parameters = {
         optional_title = { __doc = [[string|nil]] },
         tbl = { __doc = [[table]], required = true }
     },
@@ -35,7 +35,7 @@ printers.inspect = fn({
 printers.inspectKeys = fn({
     __doc = [[print a sorted array of the table's keys]],
     positional = true,
-    schema = {
+    parameters = {
         optional_title = { __doc = [[string|nil]] },
         tbl = { __doc = [[table]], required = true }
     },
@@ -65,7 +65,7 @@ printers.inspectKeys = fn({
 printers.prettyprint = fn({
     __doc = [[pretty-stringifies, concatenates, and prints input]],
     positional = true,
-    schema = {
+    parameters = {
         args = { __doc = [[any...]], required = true }
     },
     code = function(self, ...)
@@ -87,7 +87,7 @@ printers.prettyprint = fn({
 printers.debug = fn({
     __doc = [[print message with source linenumber only if alce.cfg.debug_print is `true`]],
     positional = true,
-    schema = {
+    parameters = {
         args = { __doc = [[any...]], required = true }
     },
     code = function(self, ...)
@@ -101,7 +101,7 @@ printers.debug = fn({
 printers.warn = fn({
     __doc = [[print message with source linenumber only if alce.cfg.warn_print is `true`]],
     positional = true,
-    schema = {
+    parameters = {
         args = { __doc = [[any...]], required = true }
     },
     code = function(self, ...)

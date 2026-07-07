@@ -8,7 +8,7 @@ utils.readPointerChain = fn({
     __doc = [[reads a chain of pointers starting from the given pointer and following the provided offsets]],
     __doc_returns = [[address|nil: the resulting address if successful, otherwise nil]],
     positional = true,
-    schema = {
+    parameters = {
         pointer = { __doc = [[address: the starting address to read from]], required = true },
         offsets = { __doc = [[number...: a sequence of offsets to follow]] }
     },
@@ -34,7 +34,7 @@ utils.safeChain = fn({
     __doc = [[reads a chain of pointers and asserts the resulting address isAddressLike]],
     __doc_returns = [[address: the resulting address]],
     positional = true,
-    schema = {
+    parameters = {
         pointer = { __doc = [[address: the starting address to read from]], required = true },
         offsets = { __doc = [[number...: a sequence of offsets to follow]] }
     },
@@ -49,7 +49,7 @@ utils.safeChain = fn({
 utils.enumerate = fn({
     __doc = [[enumerates an iterator, providing an index starting from startFrom]],
     __doc_returns = [[integer, any: the current index and the value from the iterator]],
-    schema = {
+    parameters = {
         iterator = { __doc = [[function: the iterator to enumerate]], validate = validators.isCallable, required = true },
         startFrom = { __doc = [[number: the index to start from (defaults to 1)]], default = 1 }
     },
@@ -68,7 +68,7 @@ utils.enumerate = fn({
 utils.prune = fn({
     __doc = [[recursively nils keys with empty tables]],
     positional = true,
-    schema = {
+    parameters = {
         tbl = { __doc = [[table: the table to prune]], required = true }
     },
     code = function(self, tbl)
@@ -88,7 +88,7 @@ utils.prune = fn({
 utils.keyFromValue = fn({
     __doc = [[returns the first key associated with a given value]],
     __doc_returns = [[any|nil: the first key associated with the value, or nil if not found]],
-    schema = {
+    parameters = {
         value = { __doc = [[any: the value to search for]], required = true },
         tbl = { __doc = [[table: the table to search in]], required = true, validate = validators.isTable }
     },
@@ -102,7 +102,7 @@ utils.keyFromValue = fn({
 utils.keysFromValue = fn({
     __doc = [[returns an array of all keys associated with a given value]],
     __doc_returns = [[table|nil: a sorted array of keys associated with the value, or nil if none]],
-    schema = {
+    parameters = {
         value = { __doc = [[any: the value to search for]], required = true },
         tbl = { __doc = [[table: the table to search in]], required = true, validate = validators.isTable }
     },
@@ -118,7 +118,7 @@ utils.keysFromValue = fn({
 
 utils.unsafeExtend = fn({
     __doc = [[assigns k,v pairs from one table to another, silently overwriting duplicate keys]],
-    schema = {
+    parameters = {
         to = { __doc = [[table: the destination table]], required = true, validate = validators.isTable },
         from = { __doc = [[table: the source table]], required = true, validate = validators.isTable }
     },
@@ -131,7 +131,7 @@ utils.unsafeExtend = fn({
 
 utils.extend = fn({
     __doc = [[assigns k,v pairs from one table to another, asserting that the keys do not already exist]],
-    schema = {
+    parameters = {
         to = { __doc = [[table: the destination table]], required = true, validate = validators.isTable },
         from = { __doc = [[table: the source table]], required = true, validate = validators.isTable }
     },

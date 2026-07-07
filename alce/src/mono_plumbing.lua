@@ -114,7 +114,7 @@ mono_plumbing.invoke = fn({
 
 mono_plumbing.sortByHierarchy = fn({
     __doc = [[sorts an array of members by parent hierarchy, from parent to child]],
-    schema = {
+    parameters = {
         array = { __doc = [[table]], required = true },
         hierarchy = { validate = validators.isNonEmptyTable, required = true }
     },
@@ -139,7 +139,7 @@ mono_plumbing.sortByHierarchy = fn({
 mono_plumbing.getImage = fn({
     __doc = [[gets Image by assemblyName]],
     __doc_returns = [[number|nil]],
-    schema = {
+    parameters = {
         assemblyName = { __doc = [[string]], required = true },
         enumeratedAssemblies = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
     },
@@ -158,7 +158,7 @@ mono_plumbing.getImage = fn({
 mono_plumbing.getClassEx = fn({
     __doc = [[finds a class by name in a specific assembly and namespace]],
     __doc_returns = [[table|nil]],
-    schema = {
+    parameters = {
         assemblyNameOrImage = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end, required = true },
         className = { validate = validators.isNonBlankString, required = true },
         namespace = { __doc = [[string]] }
@@ -178,7 +178,7 @@ mono_plumbing.getClassEx = fn({
 mono_plumbing.getClass = fn({
     __doc = [[returns the class handle for a given class]],
     __doc_returns = [[number|nil]],
-    schema = {
+    parameters = {
         assemblyNameOrImage = { __doc = [[any]], required = true },
         className = { __doc = [[string]], required = true },
         namespace = { __doc = [[string]] }
@@ -192,7 +192,7 @@ mono_plumbing.getClass = fn({
 mono_plumbing.method_getSignature = fn({
     __doc = [[returns the signature of a method]],
     __doc_returns = [[table]],
-    schema = {
+    parameters = {
         methodID = { validate = validators.isPositiveInteger, required = true },
         methodName = { __doc = [[string]] }
     },
@@ -218,7 +218,7 @@ mono_plumbing.method_getSignature = fn({
 mono_plumbing.class_getParentHierarchy = fn({
     __doc = [[returns array of class IDs ordered from parent to child]],
     __doc_returns = [[table]],
-    schema = {
+    parameters = {
         classID = { validate = validators.isPositiveInteger, required = true }
     },
     code = function(self, args)
@@ -235,7 +235,7 @@ mono_plumbing.class_getParentHierarchy = fn({
 mono_plumbing.getProcessedFields = fn({
     __doc = [[enumerates and processes fields for a class]],
     __doc_returns = [[table|nil]],
-    schema = {
+    parameters = {
         classID = { __doc = [[any]], required = true },
         getParents = { __doc = [[boolean]] },
         hierarchy = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end },
@@ -302,7 +302,7 @@ mono_plumbing.getProcessedFields = fn({
 mono_plumbing.getProcessedMethods = fn({
     __doc = [[enumerates and processes methods for a class]],
     __doc_returns = [[table|nil]],
-    schema = {
+    parameters = {
         classID = { type = "any", required = true },
         getParents = { type = "boolean" },
         hierarchy = { validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
@@ -334,7 +334,7 @@ mono_plumbing.getProcessedMethods = fn({
 mono_plumbing.ObjectAlias = fn({
     __doc = [[creates a proxy object for a mono object]],
     __doc_returns = [[proxy object]],
-    schema = {
+    parameters = {
         alceClass = { type = "table", required = true },
         baseAddress = { validate = validators.isAddresslike, required = true }
     },

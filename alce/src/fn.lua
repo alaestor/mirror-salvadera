@@ -1,17 +1,41 @@
 local alce = require("alce.src.globals")
 local arg_parser = require("alce.src.arg_parser")
 
-local function fn(config)
-    local func = {
-        _type = "fn_structured_function",
-        code = config.code,
-        __doc = config.__doc or "",
-        __doc_returns = config.__doc_returns or "",
-        positional = config.positional or false,
-        member = config.member or false,
-        debug = config.debug or {},
-        schema = config.schema or {}
+-- Define the expected arguments for the function.
+-- parameters is a table where keys are argument names and values are specs:
+-- {
+--     __doc = "<type><: description>", -- Colloquial argument type and an optional description
+--     default = value or function,     -- Default value if not provided
+--     required = true|false,           -- Whether the argument must be present
+--     validate = function(v),          -- Validation function returning ok, err
+--     transform = function(v),         -- Transformation function
+-- }
+--
+
+local function normalize_config(config)
+    local defaults = {
+        __doc = "",
+        __doc_returns = "",
+        positional = false,
+        member = false,
+        debug = {},
+        parameters = {},
     }
+
+    local normalized = {}
+    for k, v in pairs(defaults) do normalized[k] = v end
+    for k, v in pairs(config) do normalized[k] = v end
+
+    if type(normalized.code) ~= "function" then
+        error("alce.fn: 'code' must be a function")
+    end
+
+    return normalized
+end
+
+local function fn(config)
+    local func = normalize_config(config)
+    func._type = "fn_structured_function"
 
     -- Automatically add line number to debug info if not provided
     if func.debug.line == nil then
@@ -21,80 +45,20 @@ local function fn(config)
 
     setmetatable(func, {
         __call = function(self, ...)
-            local varargs = {...}
-
             if self.positional then
-                return self.code(self, ...)
-            end
-
-            local instance = nil
-            local args = nil
-
-            if self.member then
-                local arg_count = select('#', ...)
-                if arg_count >= 2 then
-                    instance = varargs[1]
-                    args = varargs[2]
-                elseif arg_count == 1 then
-                    local first = varargs[1]
-                    if type(first) == 'table' then
-                        local is_args = false
-                        for k, _ in pairs(self.schema) do
-                            if first[k] ~= nil then
-                                is_args = true
-                                break
-                            end
-                        end
-                        if is_args then
-                            instance = nil
-                            args = first
-                        else
-                            instance = first
-                            args = nil
-                        end
-                    else
-                        instance = first
-                        args = nil
-                    end
+                if self.member then
+                    return self.code(...)
                 else
-                    instance = nil
-                    args = nil
-                end
-            else
-                -- Standalone: the first arg (if any) is the args table
-                args = varargs[1]
-            end
-
-            local parsed_args
-            if alce.cfg.strict then
-                -- Full validation path
-                parsed_args = arg_parser.parse_args(self, args)
-            else
-                -- Fast path: only handle defaults/presence
-                parsed_args = {}
-                for key, spec in pairs(self.schema) do
-                    local exists = false
-                    if type(args) == 'table' then
-                        if args[key] ~= nil then
-                            exists = true
-                        end
-                    end
-
-                    if exists then
-                        parsed_args[key] = args[key]
-                    elseif spec.default ~= nil then
-                        parsed_args[key] = type(spec.default) == "function" and spec.default() or spec.default
-                    end
+                    return self.code(self, ...)
                 end
             end
 
-            if self.member then
-                -- Execute the code with instance and parsed arguments
-                return self.code(self, instance, parsed_args)
-            else
-                -- Execute the code with parsed arguments
-                return self.code(self, parsed_args)
-            end
+            local varargs = {...}
+            local instance = self.member and varargs[1] or self
+            local args = self.member and varargs[2] or varargs[1]
+
+            local parsed_args = arg_parser.parse_args(self, args, alce.cfg.strict)
+            return self.code(instance, parsed_args)
         end
     })
 
@@ -102,17 +66,14 @@ local function fn(config)
 end
 
 local function member_fn(config)
-    -- member_fn is designed to be used as a method (e.g. object:method()).
-    return fn({
+    -- member_fn is designed to be used as a method (e.g., object:method()).
+    local new_config = {
         member = true,
-        positional = config.positional or false,
-        code = function(self, instance, ...)
-            return config.code(instance, ...)
-        end,
-        __doc = config.__doc,
-        __doc_returns = config.__doc_returns,
-        schema = config.schema
-    })
+    }
+    for k, v in pairs(config) do
+        new_config[k] = v
+    end
+    return fn(new_config)
 end
 
 return {

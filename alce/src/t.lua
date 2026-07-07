@@ -56,7 +56,7 @@ alce.T = T
 T.unsafeFromMono = fn({
     __doc = [[returns a VTypeHelper from a monoType, with a warning if it exceeds the lookup key limit]],
     __doc_returns = [[VTypeHelper]],
-    schema = {
+    parameters = {
         monoType = { __doc = [[rough type: any - the monoType to convert from]], required = true }
     },
     code = function(self, args)
@@ -71,7 +71,7 @@ T.unsafeFromMono = fn({
 T.fromMono = fn({
     __doc = [[returns a VTypeHelper from a monoType with a bounds-checking assertion]],
     __doc_returns = [[VTypeHelper]],
-    schema = {
+    parameters = {
         monoType = { __doc = [[rough type: any - the monoType to convert from]], required = true }
     },
     code = function(self, args)

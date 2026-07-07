@@ -16,7 +16,7 @@ T.List = {
     new = member_fn({
         __doc = [[Creates a new T.List representation at the given baseAddress.]],
         __doc_returns = [[T.List: a new T.List instance]],
-        schema = {
+        parameters = {
             baseAddress = { __doc = [[address: the base address]], required = true },
             indexFrom = { __doc = [[offset: starting index]] },
             indexBy = { __doc = [[offset: index increment]] },
@@ -71,7 +71,7 @@ T.List = {
     atUnsafe = member_fn({
         __doc = [[Returns address of the Nth element at index (starting from zero) without bounds checking.]],
         __doc_returns = [[address: the address of the Nth element]],
-        schema = {
+        parameters = {
             index = { __doc = [[integer: the index of the element]], required = true }
         },
         code = function(self, args)
@@ -84,7 +84,7 @@ T.List = {
     at = member_fn({
         __doc = [[Returns address of the Nth element at index (starting from zero) with bounds checking.]],
         __doc_returns = [[address: the address of the Nth element]],
-        schema = {
+        parameters = {
             index = { __doc = [[integer: the index of the element]], required = true }
         },
         code = function(self, args)
@@ -99,7 +99,7 @@ T.List = {
     iterator = member_fn({
         __doc = [[Returns an iterator which returns the value of the list item from start to end.]],
         __doc_returns = [[function: an iterator over the list]],
-        schema = {
+        parameters = {
             first = { __doc = [[offset: starting index]] },
             last = { __doc = [[offset: ending index]] },
         },
@@ -127,7 +127,7 @@ T.List = {
     instanceIterator = member_fn({
         __doc = [[Convenience method wraps the result of the iterator in `alceClass:instance`, returning object instance aliases rather than addresses.]],
         __doc_returns = [[function: an iterator over object instances]],
-        schema = {
+        parameters = {
             alceClass = { __doc = [[table: the alce class with an instance method]], required = true },
             first = { __doc = [[offset: starting index]] },
             last = { __doc = [[offset: ending index]] },

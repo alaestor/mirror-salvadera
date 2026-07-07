@@ -1,49 +1,40 @@
-local function parse_args(self, input)
+local function parse_args(self, input, strict)
     input = input or {}
-    local schema = self.schema or {}
+    local parameters = self.parameters or {}
     local out = {}
 
-    for key, spec in pairs(schema) do
-        local exists = false
-        for k in pairs(input) do
-            if k == key then
-                exists = true
-                break
-            end
-        end
+    for key, spec in pairs(parameters) do
+        local val = input[key]
+        local exists = (val ~= nil)
 
         if exists then
-            local val = input[key]
-            if spec.validate then
+            if strict and spec.validate then
                 local ok, err = spec.validate(val)
                 if not ok then
                     error(string.format("invalid arg '%s': %s", key, tostring(err)))
                 end
             end
+
+            if spec.transform then
+                val = spec.transform(val)
+            end
             out[key] = val
         elseif spec.default ~= nil then
-            -- Handle lazy defaults
-            if type(spec.default) == "function" then
-                out[key] = spec.default()
-            else
-                out[key] = spec.default
+            local def = type(spec.default) == "function" and spec.default() or spec.default
+            if spec.transform then
+                def = spec.transform(def)
             end
-        elseif spec.required then
+            out[key] = def
+        elseif strict and spec.required then
             error(string.format("missing required arg '%s'", key))
         end
     end
 
-    -- Check for unexpected keys
-    for key, _ in pairs(input) do
-        if schema[key] == nil then
-            error(string.format("unexpected arg '%s'", key))
-        end
-    end
-
-    -- Transform
-    for key, spec in pairs(schema) do
-        if out[key] ~= nil and spec.transform then
-            out[key] = spec.transform(out[key])
+    if strict then
+        for key, _ in pairs(input) do
+            if parameters[key] == nil then
+                error(string.format("unexpected arg '%s'", key))
+            end
         end
     end
 

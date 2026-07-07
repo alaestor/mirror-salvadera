@@ -11,7 +11,7 @@ test.run_and_report(function()
             code = function(self, args)
                 return args.a + args.b
             end,
-            schema = {
+            parameters = {
                 a = { type = "number", required = true },
                 b = { type = "number", required = true }
             }
@@ -25,7 +25,7 @@ test.run_and_report(function()
 
         test.it("should preserve metadata from configuration", function()
             test.expect(myfunc.__doc).to_eq("A simple addition function")
-            test.expect(myfunc.schema).to_be_type("table")
+            test.expect(myfunc.parameters).to_be_type("table")
         end)
 
         test.it("should automatically assign a debug line number", function()
@@ -45,7 +45,7 @@ test.run_and_report(function()
             code = function(instance, value)
                 return instance.base + value
             end,
-            schema = {
+            parameters = {
                 value = { type = "number" }
             }
         }
@@ -64,7 +64,7 @@ test.run_and_report(function()
 
         test.it("should preserve metadata from configuration", function()
             test.expect(my_member_fn.__doc).to_eq("A simple member function")
-            test.expect(my_member_fn.schema).to_be_type("table")
+            test.expect(my_member_fn.parameters).to_be_type("table")
         end)
     end)
 end)

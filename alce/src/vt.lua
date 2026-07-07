@@ -72,7 +72,7 @@ For working with a vartype such as: finding its monotypes, reading and writing, 
 vt.VTypeHelper.new = member_fn({
     __doc = [[creates a new VType helper]],
     __doc_returns = [[VTypeHelper: the created VType helper]],
-    schema = {
+    parameters = {
         basicTypeString = {
             __doc = [[string: the name of the type without prefix (e.g. 'dword')]],
             required = true,
@@ -120,7 +120,7 @@ vt.VTypeHelper.getMonotypesAsStrings = member_fn({
 vt.VTypeHelper.asInvokeArgument = member_fn({
     __doc = [[formats the VType and a value for invoking methods]],
     __doc_returns = [[table: a table containing the vType and value for invoke]],
-    schema = {
+    parameters = {
         value = { __doc = [[any: the value to wrap]], required = true }
     },
     code = function(self, args)
@@ -132,7 +132,7 @@ vt.VTypeHelper.asInvokeArgument = member_fn({
 vt.VTypeHelper.read = member_fn({
     __doc = [[reads a value from the specified address using the VType]],
     __doc_returns = [[any: the value read from the address]],
-    schema = {
+    parameters = {
         address = {
             __doc = [[number: the address to read from]],
             required = true,
@@ -149,7 +149,7 @@ vt.VTypeHelper.read = member_fn({
 vt.VTypeHelper.write = member_fn({
     __doc = [[writes a value to the specified address using the VType]],
     __doc_returns = [[boolean: whether the write succeeded]],
-    schema = {
+    parameters = {
         address = {
             __doc = [[number: the address to write to]],
             required = true,

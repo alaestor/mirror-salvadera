@@ -15,7 +15,7 @@ local fmt = {}
 		        local str = args.str
 		        return str:gsub("(%a)([%w']*)", function(first, rest) return first:upper() .. rest:lower() end)
 		    end,
-		    schema = {
+		    parameters = {
 		        str = { __doc = [[string: the string to title case]], required = true }
 		    }
 		})
@@ -35,7 +35,7 @@ local fmt = {}
         for i = 1, #bytes do t[i] = byte_to_bits(string.byte(bytes, i)) end
         return '0b' .. table.concat(t, ' ')
     end,
-    schema = {
+    parameters = {
         value = { __doc = [[number: the numeric value to convert to binary]], required = true },
         useDouble = { __doc = [[boolean: whether to use double precision]] },
         useNativeEndian = { __doc = [[boolean: whether to use native endianness]] }
@@ -65,7 +65,7 @@ for i = 0, 255 do BYTE_TO_HEX[i] = string.format("%02X", i) end
 	        end
 	        return '0x' .. result
 	    end,
-	    schema = {
+	    parameters = {
 	        value = { __doc = [[number: the numeric value to convert to hex]], required = true },
 	        withPadding = { __doc = [[boolean: whether to include leading zeros for padding]] },
 	        useNativeEndian = { __doc = [[boolean: whether to use native endianness]] }
@@ -83,7 +83,7 @@ for i = 0, 255 do BYTE_TO_HEX[i] = string.format("%02X", i) end
 	        if targetIs64Bit() then return full
 	        else return '0x' .. full:sub(-8) end
 	    end,
-	    schema = {
+	    parameters = {
 	        value = { __doc = [[number: the numeric value to convert to address]], required = true }
 	    }
 	})
@@ -94,7 +94,7 @@ for i = 0, 255 do BYTE_TO_HEX[i] = string.format("%02X", i) end
 	        local str = args.str
 	        return string.gsub(str, '[^%a%d]', '_')
 	    end,
-	    schema = {
+	    parameters = {
 	        str = { __doc = [[string: the string to sanitize]], required = true }
 	    }
 	})
@@ -111,7 +111,7 @@ for i = 0, 255 do BYTE_TO_HEX[i] = string.format("%02X", i) end
 	        elseif t == 'function' or t == 'thread' or t == 'userdata' then return '<' .. tostring(value) .. '>'
 	        else return tostring(value) end
 	    end,
-	    schema = {
+	    parameters = {
 	        value = { __doc = [[any: the value to format]], required = true },
 	        usePrintFullTable = { __doc = [[boolean: whether to print the full table if value is a table]] }
 	    }
@@ -182,7 +182,7 @@ for i = 0, 255 do BYTE_TO_HEX[i] = string.format("%02X", i) end
 	        end
 	        return table.concat(result, "\n")
 	    end,
-	    schema = {
+	    parameters = {
 	        tbl = { __doc = [[table: the table to represent as a string]], required = true },
 	        useDepthLimit = { __doc = [[number: the maximum depth of recursion]] },
 	        useKeysToIgnore = { __doc = [[table: keys to exclude from the representation]] },

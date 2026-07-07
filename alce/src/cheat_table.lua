@@ -39,7 +39,7 @@ __doc = [[
 Makes disableWithoutExecute() be called on the next MemoryRecord script that runs successfully.
 Can be used at the bottom of an [ENABLE] section to turn a script into a momentary button rather than toggle.
 ]],
-schema = {
+parameters = {
     disableBeep = { __doc = [[boolean: whether to disable the beep when the script runs successfully]] }
 },
 code = function(self, args)
@@ -55,7 +55,7 @@ end
 cheattable.clearChildren = fn({
 __doc = [[destroy's all children of the given memoryRecord]],
 positional = true,
-schema = {
+parameters = {
     memoryRecord = { __doc = [[MemoryRecord: the memory record whose children should be destroyed]], required = true }
 },
 code = function(self, memoryRecord)
@@ -69,7 +69,7 @@ end
 cheattable.clearChildrenByDesc = fn({
 __doc = [[finds the MR by description then calls alce.cheattable.clearChildren]],
 positional = true,
-schema = {
+parameters = {
     desc = { __doc = [[string: the description of the memory record to find]], required = true },
     addressList = { __doc = [[AddressList: optional address list to search in]] }
 },
@@ -110,7 +110,7 @@ print('the address of mode is ' .. newmr.AddressString)
 ]],
 __doc_returns = [[MemoryRecord: the newly created MemoryRecord]],
 positional = false,
-schema = {
+parameters = {
     parent = { __doc = [[MemoryRecord: the parent memory record to attach the new record to]] },
     description = { __doc = [[string: the description of the new memory record]] },
     vtype = { __doc = [[value type: the value type of the new memory record (e.g., vtByte, vtDword)]] },
@@ -171,7 +171,7 @@ cheattable.createHeader = fn({
 __doc = [[Creates a new Group Header MemoryRecord]],
 __doc_returns = [[MemoryRecord: the newly created MemoryRecord]],
 positional = false,
-schema = {
+parameters = {
     parent = { __doc = [[MemoryRecord: the parent memory record to attach the new header to]] },
     description = { __doc = [[string: the description of the new header]] },
     showCollapseButtons = { __doc = [[boolean: whether to show collapse buttons on the header]] },

@@ -24,7 +24,7 @@ mono.Method = {
     init = member_fn({
         __doc = [[initializes a mono method]],
         __doc_returns = [[self]],
-        schema = {
+        parameters = {
             methodID = { validate = validators.isPositiveInteger, required = true },
             name = { __doc = [[string: the name of the mono method]], required = true },
             flags = { __doc = [[integer: the flags of the mono method]], required = true }
@@ -55,7 +55,7 @@ mono.Method = {
     new = fn({
         __doc = [[creates a new mono method instance]],
         __doc_returns = [[Method]],
-        schema = {
+        parameters = {
             methodID = { validate = validators.isPositiveInteger, required = true },
             name = { __doc = [[string: the name of the mono method]], required = true },
             flags = { __doc = [[integer: the flags of the mono method]], required = true }
@@ -90,7 +90,7 @@ mono.Method = {
 
     getAttributes = member_fn({
         __doc = [[gets the names of global monoscript.lua constants representing the method attributes]],
-        __doc_returns = [[table]],
+        __doc_returns = [[array: the list of `METHOD_ATTRIBUTE_...`]],
         code = function(self)
             local t = {}
             for _, flagName in pairs(alce.monoscript.methodAttribute.names) do
@@ -119,10 +119,11 @@ mono.Method = {
     callUnsafe = member_fn({
         __doc = [[invokes the method without safety checks. Arguments must be in CE's invoke format]],
         __doc_returns = [[any, string, number]],
-        schema = {
+        parameters = {
             maybe_instance = { __doc = [[number: optional instance address]] },
             maybe_args = { __doc = [[table: optional arguments table]] }
         },
+        positional = true,
         code = function(self, args)
             assert(type(args) == 'table', 'alce.mono.Method.callUnsafe(): expected argument table')
             if alce.cfg.debug_print then
@@ -141,10 +142,11 @@ mono.Method = {
     call = member_fn({
         __doc = [[invokes the method after safety checks and argument processing]],
         __doc_returns = [[any]],
-        schema = {
+        parameters = {
             maybe_instance = { __doc = [[number: optional instance address]] },
             ["..."] = { __doc = [[any: positional arguments]] }
         },
+        positional = true,
         code = function(self, args)
             local maybe_instance = args.maybe_instance
             local raw_args = args["..."] or {}
@@ -184,7 +186,7 @@ mono.Class = {
     new = fn({
         __doc = [[creates a new mono class instance]],
         __doc_returns = [[Class]],
-        schema = {
+        parameters = {
             assemblyNameOrImage = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end, required = true },
             className = { validate = validators.isNonBlankString, required = true },
             namespace = { __doc = [[string: the namespace of the mono class]] },
@@ -252,7 +254,7 @@ mono.Class = {
     instance = member_fn({
         __doc = [[creates a proxy object (ObjectAlias) for an instance of this class]],
         __doc_returns = [[ObjectAlias]],
-        schema = {
+        parameters = {
             baseAddress = { validate = validators.isAddresslike, required = true }
         },
         code = function(self, args)
@@ -279,7 +281,7 @@ mono.ClassTable = {
     new = fn({
         __doc = [[creates a new mono class table instance]],
         __doc_returns = [[ClassTable]],
-        schema = {
+        parameters = {
             keyPrefixAssembly = { __doc = [[string: prefix for assembly names]], required = true },
             keyPrefixNamespace = { __doc = [[string: prefix for namespace names]], required = true },
         },
@@ -300,7 +302,7 @@ mono.ClassTable = {
     add = member_fn({
         __doc = [[accepts explicit add({ {image, class[, namespace]}, ... })]],
         __doc_returns = [[self]],
-        schema = {
+        parameters = {
             targets = { __doc = [[table: list of targets to add]], required = true }
         },
         code = function(self, args)
@@ -318,7 +320,7 @@ mono.ClassTable = {
     addFromImage = member_fn({
         __doc = [[convenience abstraction: addFromImage(image, (class | {class, namespace}), ...)]],
         __doc_returns = [[self]],
-        schema = {
+        parameters = {
             image = { validate = function(v) return validators.isPositiveInteger(v) or validators.isNonBlankString(v) end, required = true },
             targets = { __doc = [[table: list of targets]], required = true }
         },
@@ -349,7 +351,7 @@ mono.ClassTable = {
     load = member_fn({
         __doc = [[loads the classes specified in the target list]],
         __doc_returns = [[self]],
-        schema = {
+        parameters = {
             getParents = { __doc = [[boolean: whether to get parents]] }
         },
         code = function(self, args)

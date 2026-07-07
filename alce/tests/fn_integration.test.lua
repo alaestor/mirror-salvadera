@@ -13,7 +13,7 @@ test.run_and_report(function()
             code = function(self, args)
                 return args.a + args.b
             end,
-            schema = {
+            parameters = {
                 a = { __doc = "number", required = true },
                 b = { __doc = "number", required = true }
             }
@@ -56,7 +56,7 @@ test.run_and_report(function()
             code = function(self, args)
                 return args.a + args.b
             end,
-            schema = {
+            parameters = {
                 a = { __doc = "number", required = true },
                 b = { __doc = "number", required = true }
             }
@@ -83,7 +83,7 @@ test.run_and_report(function()
             code = function(self, args)
                 return args.a + args.b
             end,
-            schema = {
+            parameters = {
                 a = { default = 10 },
                 b = { default = 20 }
             }
