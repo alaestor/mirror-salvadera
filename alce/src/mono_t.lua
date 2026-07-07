@@ -100,18 +100,18 @@ T.List = {
         __doc = [[Returns an iterator which returns the value of the list item from start to end.]],
         __doc_returns = [[function: an iterator over the list]],
         schema = {
-            start = { __doc = [[offset: starting index]] },
-            end = { __doc = [[offset: ending index]] },
+            first = { __doc = [[offset: starting index]] },
+            last = { __doc = [[offset: ending index]] },
         },
         code = function(self, args)
-            local start = args.start
-            local end = args.end
-            local i = start or 0
+            local first = args.first
+            local last = args.last
+            local i = first or 0
             local size = self:size()
-            local e = end or size
-            assert(validators.isOffsetlike(i), 'alce.mono.T.List.iterator(): invalid argument: start: ' .. tostring(start))
-            assert(validators.isOffsetlike(e), 'alce.mono.T.List.iterator(): invalid argument: end: ' .. tostring(end))
-            assert(e <= size, 'alce.mono.T.List.iterator(): invalid argument: end was out of bounds: ' .. tostring(end))
+            local e = last or size
+            assert(validators.isOffsetlike(i), 'alce.mono.T.List.iterator(): invalid argument: first: ' .. tostring(first))
+            assert(validators.isOffsetlike(e), 'alce.mono.T.List.iterator(): invalid argument: last: ' .. tostring(last))
+            assert(e <= size, 'alce.mono.T.List.iterator(): invalid argument: last was out of bounds: ' .. tostring(last))
 
             local info = debug.getinfo(2, "Sl")
             return function()
@@ -129,15 +129,15 @@ T.List = {
         __doc_returns = [[function: an iterator over object instances]],
         schema = {
             alceClass = { __doc = [[table: the alce class with an instance method]], required = true },
-            start = { __doc = [[offset: starting index]] },
-            end = { __doc = [[offset: ending index]] },
+            first = { __doc = [[offset: starting index]] },
+            last = { __doc = [[offset: ending index]] },
         },
         code = function(self, args)
             local alceClass = args.alceClass
-            local start = args.start
-            local end = args.end
+            local first = args.first
+            local last = args.last
             assert(alce.isCallable(alceClass.instance), 'alce.mono.T.List.instanceIterator(): invalid argument: alceClass must have an Instance method.')
-            local iter = self:iterator({ start = start, end = end })
+            local iter = self:iterator({ first = first, last = last })
             return function()
                 local i, r = iter()
                 if r then return i, alceClass:instance(r)
