@@ -30,7 +30,6 @@ mono.Method = {
             flags = { __doc = [[integer: the flags of the mono method]], required = true }
         },
         code = function(self, args)
-            assert(type(args) == 'table', 'alce.mono.Method.init(): expected argument table')
             local methodID = args.methodID
             local name = args.name
             local flags = args.flags
@@ -125,7 +124,6 @@ mono.Method = {
         },
         positional = true,
         code = function(self, args)
-            assert(type(args) == 'table', 'alce.mono.Method.callUnsafe(): expected argument table')
             if alce.cfg.debug_print then
                 alce.debug(string.format("alce.mono.Method.callUnsafe(): attempting to invoke call '%s' on instance %s with...\n%s", self.signature.full, alce.fmt.address(args.maybe_instance), alce.fmt.table({wants=self.parameters, giving=args.maybe_args or 'Nothing'})))
             end
@@ -258,7 +256,6 @@ mono.Class = {
             baseAddress = { validate = validators.isAddresslike, required = true }
         },
         code = function(self, args)
-            assert(type(args) == 'table', 'alce.mono.Class.instance(): expected argument table')
             return mono_plumbing.ObjectAlias({
                 alceClass = self,
                 baseAddress = args.baseAddress
@@ -306,7 +303,6 @@ mono.ClassTable = {
             targets = { __doc = [[table: list of targets to add]], required = true }
         },
         code = function(self, args)
-            assert(type(args) == 'table', 'alce.mono.ClassTable.add(): expected argument table')
             assert(not self._internal.isLoaded, 'alce.mono.ClassTable.add(): cannot add while table is loaded. Try calling unload() first?')
             local entries = args.targets or {}
             alce.debug('alce.mono.ClassTable.add(): added targets: ' .. alce.fmt.table(entries))
@@ -325,7 +321,6 @@ mono.ClassTable = {
             targets = { __doc = [[table: list of targets]], required = true }
         },
         code = function(self, args)
-            assert(type(args) == 'table', 'alce.mono.ClassTable.addFromImage(): expected argument table')
             assert(not self._internal.isLoaded, 'alce.mono.ClassTable.addFromImage(): cannot add while table is loaded. Try calling unload() first?')
             local image = args.image
             local items = args.targets or {}

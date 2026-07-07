@@ -17,32 +17,36 @@ T.List = {
         __doc = [[Creates a new T.List representation at the given baseAddress.]],
         __doc_returns = [[T.List: a new T.List instance]],
         parameters = {
-            baseAddress = { __doc = [[address: the base address]], required = true },
-            indexFrom = { __doc = [[offset: starting index]] },
-            indexBy = { __doc = [[offset: index increment]] },
-            offsetItems = { __doc = [[offset: offset to items]] },
-            offsetSize = { __doc = [[offset: offset to size]] },
+            baseAddress = {
+                __doc = [[address: the base address]],
+                required = true,
+                validate = function(v) return validators.isAddresslike(v) end
+            },
+            indexFrom = {
+                __doc = [[offset: starting index]],
+                validate = function(v) return validators.isOffsetlike(v) end
+            },
+            indexBy = {
+                __doc = [[offset: index increment]],
+                validate = function(v) return validators.isOffsetlike(v) end
+            },
+            offsetItems = {
+                __doc = [[offset: offset to items]],
+                validate = function(v) return validators.isOffsetlike(v) end
+            },
+            offsetSize = {
+                __doc = [[offset: offset to size]],
+                validate = function(v) return validators.isOffsetlike(v) end
+            },
         },
         code = function(self, args)
-            local baseAddress = args.baseAddress
-            local indexFrom = args.indexFrom
-            local indexBy = args.indexBy
-            local offsetItems = args.offsetItems
-            local offsetSize = args.offsetSize
-
-            assert(validators.isAddresslike(baseAddress), 'alce.mono.T.List.new(): invalid argument: baseAddress: ' .. tostring(baseAddress))
-            assert((not indexFrom) or validators.isOffsetlike(indexFrom), 'alce.mono.T.List.new(): invalid argument: indexFrom')
-            assert((not indexBy) or validators.isOffsetlike(indexBy), 'alce.mono.T.List.new(): invalid argument: indexBy')
-            assert((not offsetItems) or validators.isOffsetlike(offsetItems), 'alce.mono.T.List.new(): invalid argument: offsetItems')
-            assert((not offsetSize) or validators.isOffsetlike(offsetSize), 'alce.mono.T.List.new(): invalid argument: offsetSize')
-
             local instance = {
-                baseAddress = baseAddress,
-                indexFrom = indexFrom or self.indexFrom,
-                indexBy = indexBy or self.indexBy,
+                baseAddress = args.baseAddress,
+                indexFrom = args.indexFrom or self.indexFrom,
+                indexBy = args.indexBy or self.indexBy,
                 offset = {
-                    items = offsetItems or self.offset.items,
-                    size = offsetSize or self.offset.size
+                    items = args.offsetItems or self.offset.items,
+                    size = args.offsetSize or self.offset.size
                 }
             }
             setmetatable(instance, { __index = self, __call = self.at })
@@ -72,7 +76,10 @@ T.List = {
         __doc = [[Returns address of the Nth element at index (starting from zero) without bounds checking.]],
         __doc_returns = [[address: the address of the Nth element]],
         parameters = {
-            index = { __doc = [[integer: the index of the element]], required = true }
+            index = {
+                __doc = [[integer: the index of the element]],
+                required = true
+            }
         },
         code = function(self, args)
             local index = args.index
@@ -85,32 +92,39 @@ T.List = {
         __doc = [[Returns address of the Nth element at index (starting from zero) with bounds checking.]],
         __doc_returns = [[address: the address of the Nth element]],
         parameters = {
-            index = { __doc = [[integer: the index of the element]], required = true }
+            index = {
+                __doc = [[integer: the index of the element]],
+                required = true,
+                validate = function(v) return validators.isNonNegativeInteger(v) end
+            }
         },
         code = function(self, args)
             local index = args.index
             assert(validators.isAddresslike(self.baseAddress), 'alce.mono.T.List.at(): invalid state: baseAddress: ' .. tostring(self.baseAddress))
-            assert(validators.isNonNegativeInteger(index), 'alce.mono.T.List.at(): invalid argument: index: ' .. tostring(index))
             assert(index < self:size(), 'alce.mono.T.List.at(): invalid argument: index is out of bounds')
             return self:atUnsafe({ index = index })
         end,
     }),
 
     iterator = member_fn({
-        __doc = [[Returns an iterator which returns the value of the list item from start to end.]],
+        __doc = [[Returns an iterator which returns the value of the list item from first to end.]],
         __doc_returns = [[function: an iterator over the list]],
         parameters = {
-            first = { __doc = [[offset: starting index]] },
-            last = { __doc = [[offset: ending index]] },
+            first = {
+                __doc = [[offset: starting index]],
+                default = 0,
+                validate = function(v) return validators.isOffsetlike(v) end
+            },
+            last = {
+                __doc = [[offset: ending index]],
+                validate = function(v) return validators.isOffsetlike(v) end
+            },
         },
         code = function(self, args)
-            local first = args.first
-            local last = args.last
-            local i = first or 0
+            local i = args.first
             local size = self:size()
+            local last = args.last
             local e = last or size
-            assert(validators.isOffsetlike(i), 'alce.mono.T.List.iterator(): invalid argument: first: ' .. tostring(first))
-            assert(validators.isOffsetlike(e), 'alce.mono.T.List.iterator(): invalid argument: last: ' .. tostring(last))
             assert(e <= size, 'alce.mono.T.List.iterator(): invalid argument: last was out of bounds: ' .. tostring(last))
 
             local info = debug.getinfo(2, "Sl")
@@ -128,16 +142,23 @@ T.List = {
         __doc = [[Convenience method wraps the result of the iterator in `alceClass:instance`, returning object instance aliases rather than addresses.]],
         __doc_returns = [[function: an iterator over object instances]],
         parameters = {
-            alceClass = { __doc = [[table: the alce class with an instance method]], required = true },
-            first = { __doc = [[offset: starting index]] },
-            last = { __doc = [[offset: ending index]] },
+            alceClass = {
+                __doc = [[table: the alce class with an instance method]],
+                required = true,
+                validate = function(v) return alce.isCallable(v.instance) end
+            },
+            first = {
+                __doc = [[offset: starting index]],
+                validate = function(v) return validators.isOffsetlike(v) end
+            },
+            last = {
+                __doc = [[offset: ending index]],
+                validate = function(v) return validators.isOffsetlike(v) end
+            },
         },
         code = function(self, args)
             local alceClass = args.alceClass
-            local first = args.first
-            local last = args.last
-            assert(alce.isCallable(alceClass.instance), 'alce.mono.T.List.instanceIterator(): invalid argument: alceClass must have an Instance method.')
-            local iter = self:iterator({ first = first, last = last })
+            local iter = self:iterator({ first = args.start, last = args.last })
             return function()
                 local i, r = iter()
                 if r then return i, alceClass:instance(r)

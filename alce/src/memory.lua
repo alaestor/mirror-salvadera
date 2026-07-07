@@ -7,8 +7,16 @@ local memory = {}
 memory.AllocateSymbols_register = fn({
     __doc = [[void: Registers symbols defined in a context, optionally filtered by a list of names.]],
     parameters = {
-        context = { __doc = [[table: context containing symbols and registration state]], required = true, validate = function(v) return validators.isNonEmptyTable(v) end },
-        names = { __doc = [[table: optional list of names to register]], default = nil, validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
+        context = {
+            __doc = [[table: context containing symbols and registration state]],
+            required = true,
+            validate = function(v) return validators.isNonEmptyTable(v) end
+        },
+        names = {
+            __doc = [[table: optional list of names to register]],
+            default = nil,
+            validate = function(v) return v == nil or validators.isNonEmptyTable(v) end
+        }
     },
     code = function(self, args)
         local context = args.context
@@ -30,8 +38,16 @@ memory.AllocateSymbols_register = fn({
 memory.AllocateSymbols_unregister = fn({
     __doc = [[void: Unregisters symbols defined in a context, optionally filtered by a list of names.]],
     parameters = {
-        context = { __doc = [[table: context containing symbols and registration state]], required = true, validate = function(v) return validators.isNonEmptyTable(v) end },
-        names = { __doc = [[table: optional list of names to unregister]], default = nil, validate = function(v) return v == nil or validators.isNonEmptyTable(v) end }
+        context = {
+            __doc = [[table: context containing symbols and registration state]],
+            required = true,
+            validate = function(v) return validators.isNonEmptyTable(v) end
+        },
+        names = {
+            __doc = [[table: optional list of names to unregister]],
+            default = nil,
+            validate = function(v) return v == nil or validators.isNonEmptyTable(v) end
+        }
     },
     code = function(self, args)
         local context = args.context
@@ -101,11 +117,30 @@ region:unregister()
 ```]],
     __doc_returns = [[table: proxy object providing access to allocated memory]],
     parameters = {
-        packets = { __doc = [[table: list of packets defining memory layout {type, value}]], required = true, validate = function(v) return validators.isNonEmptyTable(v) end },
-        doNotRegister = { __doc = [[boolean: if true, symbols aren't registered on creation]], default = false },
-        symbolPrefix = { __doc = [[string: prefix added to registered symbol names]], default = "", validate = function(v) return validators.isNonBlankString(v) or v == "" end },
-        baseAddress = { __doc = [[address: optional specific address to allocate at]], default = nil, validate = function(v) return v == nil or validators.isAddresslike(v) end },
-        protection = { __doc = [[boolean: optional memory protection setting]], default = nil, validate = function(v) return v == nil or type(v) == "boolean" end },
+        packets = {
+            __doc = [[table: list of packets defining memory layout {type, value}]],
+            required = true,
+            validate = function(v) return validators.isNonEmptyTable(v) end
+        },
+        doNotRegister = {
+            __doc = [[boolean: if true, symbols aren't registered on creation]],
+            default = false
+        },
+        symbolPrefix = {
+            __doc = [[string: prefix added to registered symbol names]],
+            default = "",
+            validate = function(v) return validators.isNonBlankString(v) or v == "" end
+        },
+        baseAddress = {
+            __doc = [[address: optional specific address to allocate at]],
+            default = nil,
+            validate = function(v) return v == nil or validators.isAddresslike(v) end
+        },
+        protection = {
+            __doc = [[boolean: optional memory protection setting]],
+            default = nil,
+            validate = function(v) return v == nil or type(v) == "boolean" end
+        },
     },
     code = function(self, args)
         local packets = args.packets
