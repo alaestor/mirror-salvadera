@@ -53,13 +53,26 @@ end)
 ```
 
 ### Running Tests
-
+    
 Tests are executed via the Nix flake:
-`nix run .#test`
-
+- Raw source tests: `nix run .#test` (Note: these may fail if `./` requires are used without path adjustment)
+- Bundled library tests: `nix run .#test_bundle` (Validates the final `alce.lua` bundle)
+    
 To enable detailed output during development, set the `ALCE_VERBOSE` environment variable:
 `ALCE_VERBOSE=1 nix run .#test`
 
+## Bundling and Execution
+
+Alce is bundled into a single file (`alce.lua`) using `luapack`.
+
+### Bundling Requirements
+- **Relative Paths**: All internal `require` calls in `src/` must start with `./` (e.g., `require("./globals")`) for `luapack` to detect and bundle them.
+- **Dispatcher**: The bundle replaces `require` with a custom dispatcher. Any `require` call that does not start with `./` is left as-is and will likely cause a crash (`attempt to call a nil value`) unless the module is provided by the host environment.
+
+### Environment Mocking
+The library depends on global constants provided by the Cheat Engine environment.
+- When running in standalone Lua (e.g., during testing), the mock environment in `tools/env_mock.lua` must be loaded first.
+- Example for test scripts: `require("tools.env_mock")` before `require("alce")`.
 ## Documentation and Migration
 
 When migrating monolithic code from `alcelib.lua` to modular `src/*.lua` files, follow these documentation patterns to support the project's structured documentation system.
