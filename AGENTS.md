@@ -1,5 +1,9 @@
 # Global Agent Guidelines
 
+## Grep
+
+The harness' grep tool sucks. Use the terminal.
+
 ## Terminal Tool Usage
 
 The `terminal` tool has a strict constraint: the `cd` parameter **must** be one of the project root directories. You cannot use it to navigate directly into subdirectories.

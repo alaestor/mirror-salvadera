@@ -10,6 +10,134 @@ include_toc: true
 **Alaestor's Cheat Engine Library**
 Intended to be used in the table's lua script, or parted out as needed.
 
+### alce.T
+
+A convenient table that can be indexed by CE vartype value (`vtDword`), basic type string (`'dword'`), or CE vartype string (`'vtDword'`) to get a corresponding `alce.vt.VTypeHelper`. Useful for quick conversions, creating arguments, or doing type-appropriate reads/writes programmatically.
+Example usage:
+```lua
+-- read and write values
+local x = alce.T[vtDword]:read(x_addr)
+alce.T[vtDword]:write(y_addr, x)
+-- easy conversions
+local t = alce.T.(something.type)
+print('The type is ' .. t.name) -- basic lowercase type name without the vartype `vt` prefix
+assert(alce.T[t.name] == alce.T[t.vType])
+print('That type is used for the following monotypes: ' .. alce.fmt.table(t:getMonotypes)) -- prints integer
+-- creating `{type=,value=}` dict pairs (calling is just a shorthand for `asInvokeArgument`)
+invoke(method, {
+alce.T[vtPointer]:asInvokeArgument(instance),
+alce.T[vtString]('my string'), -- lookup by vartype integer ID
+alce.T['single'](3.14159), -- lookup by basic type name
+alce.T['vtSingle'](6.28318) -- lookup by vartype string
+})
+```
+
+#### alce.T.1
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.2
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.3
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.4
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.5
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.0
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.byte
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.qword
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.T.unsafeFromMono
+
+returns a VTypeHelper from a monoType, with a warning if it exceeds the lookup key limit
+
+**Returns:** `VTypeHelper`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| monoType | rough type | Yes |  any - the monoType to convert from |
+
+
+#### alce.T.dword
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.12
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.vtDouble
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.vtWord
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.vtSingle
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.vtByte
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.vtPointer
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.T.fromMono
+
+returns a VTypeHelper from a monoType with a bounds-checking assertion
+
+**Returns:** `VTypeHelper`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| monoType | rough type | Yes |  any - the monoType to convert from |
+
+
+#### alce.T.single
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.vtDword
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.double
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.vtQword
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.word
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+#### alce.T.pointer
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
 ### alce.monoscript
 
 Collection related to global constants defined in CE's `monoscript.lua`
@@ -37,26 +165,157 @@ isAddress_nearNullBoundary = 65535  (integer: 0xFFFF)
 isAddress_userspaceBoundary32 = 3221225471  (integer: 0xBFFFFFFF)
 isAddress_userspaceBoundary64 = 140737488355327  (integer: 0x7FFFFFFFFFFF)
 isOffset_tooFarBoundary = 4096  (integer: 0x1000)
+monotype_max_key = 29  (integer: 0x1D)
 warn_print = true
 ```
 
-### alce.src.memory.AllocateSymbols_unregister
+### alce.src.fmt.titleCase
 
-Unregisters symbols defined in a context, optionally filtered by a list of names.
-
-**Returns:** `nil`
+string: "title case" -> "Title Case"
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| optional_names | table | No |  |
-| context | table | Yes |  |
+| str | string | Yes |  the string to title case |
+
+
+### alce.src.fmt.sanitizeSymbolName
+
+string: the input string with non-alphanumeric replaced with underscores
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| str | string | Yes |  the string to sanitize |
+
+
+### alce.src.fmt.table
+
+string: the human-readable representation of the table
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| tbl | table | Yes |  the table to represent as a string |
+| useDontSortKeys | boolean | No |  whether to avoid sorting keys |
+| internal_depth | number | No |  internal depth counter |
+| useDontToString | boolean | No |  whether to avoid using the table's __tostring method |
+| internal_path | string | No |  internal path tracker |
+| internal_seen | table | No |  internal table for tracking circular references |
+| useKeysToIgnore | table | No |  keys to exclude from the representation |
+| useDepthLimit | number | No |  the maximum depth of recursion |
+
+
+### alce.src.fmt.pretty
+
+string: single line, unless value is a table and usePrintFullTable is true.
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| usePrintFullTable | boolean | No |  whether to print the full table if value is a table |
+| value | any | Yes |  the value to format |
+
+
+### alce.src.fmt.address
+
+string: `alce.fmt.hex(value, true, false)` padded to address length
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | number | Yes |  the numeric value to convert to address |
+
+
+### alce.src.fmt.binary
+
+string: `0b` prefixed big-endien binary string representation in groups of 8
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| useDouble | boolean | No |  whether to use double precision |
+| useNativeEndian | boolean | No |  whether to use native endianness |
+| value | number | Yes |  the numeric value to convert to binary |
+
+
+### alce.src.fmt.hex
+
+string: 0x prefixed hexadecimal string representation
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| useNativeEndian | boolean | No |  whether to use native endianness |
+| withPadding | boolean | No |  whether to include leading zeros for padding |
+| value | number | Yes |  the numeric value to convert to hex |
+
+
+### alce.src.printers.prettyprint
+
+pretty-stringifies, concatenates, and prints input
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| args | any... | Yes |  |
+
+
+### alce.src.printers.debug
+
+print message with source linenumber only if alce.cfg.debug_print is `true`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| args | any... | Yes |  |
+
+
+### alce.src.printers.inspect
+
+Prints the table formatted by fmt.table
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| tbl | table | Yes |  |
+| optional_title | string|nil | No |  |
+
+
+### alce.src.printers.warn
+
+print message with source linenumber only if alce.cfg.warn_print is `true`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| args | any... | Yes |  |
+
+
+### alce.src.printers.inspectKeys
+
+print a sorted array of the table's keys
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| tbl | table | Yes |  |
+| optional_title | string|nil | No |  |
+
+
+### alce.src.memory.AllocateSymbols_register
+
+void: Registers symbols defined in a context, optionally filtered by a list of names.
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| context | table | Yes |  context containing symbols and registration state |
+| names | table | No |  optional list of names to register |
+
+
+### alce.src.memory.AllocateSymbols_unregister
+
+void: Unregisters symbols defined in a context, optionally filtered by a list of names.
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| context | table | Yes |  context containing symbols and registration state |
+| names | table | No |  optional list of names to unregister |
 
 
 ### alce.src.memory.AllocateSymbols
 
 Allocates contiguous memory aliased by name calculated by type size and provides easy read/write access to them. Also lets you register/unregister the names as global symbols with an optional prefix.
 > **Note:** the registered symbols will have all non-alphanumeric characters replaced with underscores. Symbols will be registered by default at creation unless you the optional parameter `doNotRegister` is true.
-Exposes methods `register(optional_names)` and `unregister(optional_names)`. `optional_names` may be nil or an array of valid and unprefixed names. If nil, the functions perform the action for all symbols for all symbols not already registered/unregistered.
+Exposes methods `register(names)` and `unregister(names)`. `names` may be nil or an array of valid and unprefixed names. If nil, the functions perform the action for all symbols for all symbols not already registered/unregistered.
 The object also exposes internal state through __ prefixed keys. You probably shouldn't write to these but I'm a line of documentation, not a cop.
 - `__size` - the total size of the memory region in bytes.
 - `__memory` - base address of the memory region.
@@ -91,32 +350,378 @@ print('ending health: ', region.health)
 region:unregister()
 ```
 
-**Returns:** `table (proxy)`
+**Returns:** `table`:  proxy object providing access to allocated memory
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| packets | table | Yes |  |
-| protection | boolean | No |  |
-| baseAddress | address | No |  |
-| symbolPrefix | string | No |  |
-| doNotRegister | boolean | No |  |
+| packets | table | Yes |  list of packets defining memory layout {type, value} |
+| doNotRegister | boolean | No |  if true, symbols aren't registered on creation |
+| baseAddress | address | No |  optional specific address to allocate at |
+| symbolPrefix | string | No |  prefix added to registered symbol names |
+| protection | boolean | No |  optional memory protection setting |
 
 
-### alce.src.memory.AllocateSymbols_register
+## alce.src.vt
 
-Registers symbols defined in a context, optionally filtered by a list of names.
+a table of various CE type helpers. They can be useful on their own, but they mainly exist to be utilized by the user-friendly `alce.vt.VTypeHelper` instances in `alce.T`
+- `vt.typeStrings`: array of CE type strings (e.g. string 'vtByte', 'vtDword', 'vtPointer')
+- `vt.size`: dict mapping CE's vt types and their respective sizes in bytes (accounts for 32/64bit processes; no support for 16bit addressing)
+- `vt.read`: dict mapping CE's vt types and their respective read functions (e.g. [vdDword] is readInteger)
+- `vt.write`: mapping of CE's vt types and their respective write functions (e.g. [vdDword] is writeInteger)
 
-**Returns:** `nil`
+### alce.src.vt.VTypeHelper
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.vt.VTypeHelper.new
+
+creates a new VType helper
+
+**Returns:** `VTypeHelper`:  the created VType helper
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| optional_names | table | No |  |
-| context | table | Yes |  |
+| basicTypeString | string | Yes |  the name of the type without prefix (e.g. 'dword') |
+
+
+### alce.src.vt.VTypeHelper.read
+
+reads a value from the specified address using the VType
+
+**Returns:** `any`:  the value read from the address
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| address | number | Yes |  the address to read from |
+
+
+### alce.src.vt.VTypeHelper.getMonotypes
+
+returns the monotypes associated with the VType
+
+**Returns:** `table`:  array of monotype integers
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.vt.VTypeHelper.write
+
+writes a value to the specified address using the VType
+
+**Returns:** `boolean`:  whether the write succeeded
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to write |
+| address | number | Yes |  the address to write to |
+
+
+### alce.src.vt.VTypeHelper.asInvokeArgument
+
+formats the VType and a value for invoking methods
+
+**Returns:** `table`:  a table containing the vType and value for invoke
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to wrap |
+
+
+### alce.src.vt.VTypeHelper.getMonotypesAsStrings
+
+returns a sorted array of strings representing the monotypes
+
+**Returns:** `table`:  array of monotype name strings
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.validators.isCallable
+
+any: checks if value is callable
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isPositiveInteger
+
+any: checks if value is a positive integer
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isTable
+
+any: checks if value is a table
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isNonBlankString
+
+any: checks if value is a non-blank string
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isFloat
+
+any: checks if value is a float
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isInteger
+
+any: checks if value is an integer
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isSignedOffsetlike
+
+any: checks that the value isInteger and within positive and negative tooFarBoundary (or alce.cfg.isOffset_tooFarBoundary)
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| tooFarBoundary | number | No |  the boundary value |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.check
+
+any: passthru assert with source line (checks positive, e.g. assert(value) or assert(checker(value)))
+
+**Returns:** `any`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| checker | any | No |  the checker function |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isFiniteNumber
+
+any: checks if value is a finite number
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.hasFlag
+
+any: equivalent to (flags & flag) == flag
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| flags | number | Yes |  the bit-flags to check |
+| flag | number | Yes |  the flag to check for |
+
+
+### alce.src.validators.isAddresslike
+
+any: checks that the value isInteger and greater than nearNullBoundary (or alce.cfg.isAddress_nearNullBoundary) and less than userspaceBoundary (or alce.cfg.isAddress_userspaceBoundary)
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| nearNullBoundary | number | No |  the near-null boundary |
+| userspaceBoundary | number | No |  the userspace boundary |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isNonNegativeFloat
+
+any: checks if value is a non-negative float
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.ncheck
+
+any: passthru negation-assert with source line (checks negative, e.g. assert(not value) or assert(not checker(value)))
+
+**Returns:** `any`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| checker | any | No |  the checker function |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isNonNegativeInteger
+
+any: checks if value is a non-negative integer
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isBetween
+
+any: checks if value is between minimum and maximum
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| minimum | number | Yes |  the minimum value |
+| maximum | number | Yes |  the maximum value |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isOffsetlike
+
+any: checks that the value isNonNegativeInteger and less than tooFarBoundary (or alce.cfg.isOffset_tooFarBoundary)
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| tooFarBoundary | number | No |  the boundary value |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isNonEmptyString
+
+any: checks if value is a non-empty string
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isNonEmptyTable
+
+any: checks if value is a non-empty table
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isEmptyTable
+
+any: checks if value is an empty table
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.validators.isZeroEmptyOrNil
+
+any: checks if value is zero, empty table, blank string, or nil
+
+**Returns:** `boolean`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | any | Yes |  the value to check |
+
+
+### alce.src.mono_t.List.iterator
+
+Returns an iterator which returns the value of the list item from first to end.
+
+**Returns:** `function`:  an iterator over the list
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| first | offset | No |  starting index |
+| last | offset | No |  ending index |
+
+
+### alce.src.mono_t.List.size
+
+Returns the number of items in the list.
+
+**Returns:** `integer`:  the number of items in the list
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
 
 
 ### alce.src.mono_t.List.new
 
 Creates a new T.List representation at the given baseAddress.
+
+**Returns:** `T.List`:  a new T.List instance
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| indexBy | offset | No |  index increment |
+| baseAddress | address | Yes |  the base address |
+| offsetSize | offset | No |  offset to size |
+| indexFrom | offset | No |  starting index |
+| offsetItems | offset | No |  offset to items |
+
+
+### alce.src.mono_t.List.instanceIterator
+
+Convenience method wraps the result of the iterator in `alceClass:instance`, returning object instance aliases rather than addresses.
+
+**Returns:** `function`:  an iterator over object instances
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| last | offset | No |  ending index |
+| alceClass | table | Yes |  the alce class with an instance method |
+| first | offset | No |  starting index |
+
+
+### alce.src.mono_t.List.newFromChain
+
+Convenience constructor that returns new T.List that aliases the result from `readPointerChain(...)`
+
+**Returns:** `T.List`:  a new T.List instance
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -126,505 +731,686 @@ Creates a new T.List representation at the given baseAddress.
 
 Returns address of the Nth element at index (starting from zero) without bounds checking.
 
+**Returns:** `address`:  the address of the Nth element
+
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
+| index | integer | Yes |  the index of the element |
 
 
 ### alce.src.mono_t.List.at
 
 Returns address of the Nth element at index (starting from zero) with bounds checking.
 
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-
-
-### alce.src.mono_t.List.size
-
-Returns the number of items in the list.
+**Returns:** `address`:  the address of the Nth element
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-
-
-### alce.src.mono_t.List.iterator
-
-Returns an iterator which returns the value of the list item from optional_start to optional_end.
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-
-
-### alce.src.mono_t.List.instanceIterator
-
-Convenience method wraps the result of the iterator in `alceClass:instance`, returning object instance aliases rather than addresses.
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-
-
-### alce.src.mono_t.List.newFromChain
-
-Convenience constructor that returns new T.List that aliases the result from `readPointerChain(...)`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-
-
-### alce.src.utils.keyFromValue
-
-returns the first key associated with a given value
-
-**Returns:** `any|nil`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| tbl | table | Yes |  |
-| value | any | Yes |  |
-
-
-### alce.src.utils.extend
-
-assigns k,v pairs from one table to another, asserting that the keys do not already exist
-
-**Returns:** `nil`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| from | table | Yes |  |
-| to | table | Yes |  |
-
-
-### alce.src.utils.keysFromValue
-
-returns an array of all keys associated with a given value
-
-**Returns:** `table|nil`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| tbl | table | Yes |  |
-| value | any | Yes |  |
-
-
-### alce.src.utils.unsafeExtend
-
-assigns k,v pairs from one table to another, silently overwriting duplicate keys
-
-**Returns:** `nil`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| from | table | Yes |  |
-| to | table | Yes |  |
-
-
-### alce.src.utils.prune
-
-recursively nils keys with empty tables
-
-**Returns:** `nil`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| tbl | table | Yes |  |
+| index | integer | Yes |  the index of the element |
 
 
 ### alce.src.utils.safeChain
 
 reads a chain of pointers and asserts the resulting address isAddressLike
 
-**Returns:** `address`
+**Returns:** `address`:  the resulting address
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| offsets | number... | No |  |
-| pointer | address | Yes |  |
+| offsets | number... | No |  a sequence of offsets to follow |
+| pointer | address | Yes |  the starting address to read from |
+
+
+### alce.src.utils.prune
+
+recursively nils keys with empty tables
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| tbl | table | Yes |  the table to prune |
 
 
 ### alce.src.utils.enumerate
 
-enumerates an iterator, providing an index starting from optional_startFrom
+enumerates an iterator, providing an index starting from startFrom
 
-**Returns:** `integer, any`
+**Returns:** `integer, any`:  the current index and the value from the iterator
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| startFrom | number | No |  |
-| iterator | unknown | Yes |  |
+| startFrom | number | No |  the index to start from (defaults to 1) |
+| iterator | function | Yes |  the iterator to enumerate |
 
 
 ### alce.src.utils.readPointerChain
 
 reads a chain of pointers starting from the given pointer and following the provided offsets
 
-**Returns:** `nil|address`
+**Returns:** `address|nil`:  the resulting address if successful, otherwise nil
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| offsets | number... | No |  |
-| pointer | address | Yes |  |
+| offsets | number... | No |  a sequence of offsets to follow |
+| pointer | address | Yes |  the starting address to read from |
 
 
-### alce.src.validators.isFiniteNumber
+### alce.src.utils.extend
 
-checks if value is a finite number
+assigns k,v pairs from one table to another, asserting that the keys do not already exist
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| to | table | Yes |  the destination table |
+| from | table | Yes |  the source table |
+
+
+### alce.src.utils.unsafeExtend
+
+assigns k,v pairs from one table to another, silently overwriting duplicate keys
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| to | table | Yes |  the destination table |
+| from | table | Yes |  the source table |
+
+
+### alce.src.utils.keyFromValue
+
+returns the first key associated with a given value
+
+**Returns:** `any|nil`:  the first key associated with the value, or nil if not found
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| tbl | table | Yes |  the table to search in |
+| value | any | Yes |  the value to search for |
+
+
+### alce.src.utils.keysFromValue
+
+returns an array of all keys associated with a given value
+
+**Returns:** `table|nil`:  a sorted array of keys associated with the value, or nil if none
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| tbl | table | Yes |  the table to search in |
+| value | any | Yes |  the value to search for |
+
+
+## alce.src.t
+
+A convenient table that can be indexed by CE vartype value (`vtDword`), basic type string (`'dword'`), or CE vartype string (`'vtDword'`) to get a corresponding `alce.vt.VTypeHelper`. Useful for quick conversions, creating arguments, or doing type-appropriate reads/writes programmatically.
+Example usage:
+```lua
+-- read and write values
+local x = alce.T[vtDword]:read(x_addr)
+alce.T[vtDword]:write(y_addr, x)
+-- easy conversions
+local t = alce.T.(something.type)
+print('The type is ' .. t.name) -- basic lowercase type name without the vartype `vt` prefix
+assert(alce.T[t.name] == alce.T[t.vType])
+print('That type is used for the following monotypes: ' .. alce.fmt.table(t:getMonotypes)) -- prints integer
+-- creating `{type=,value=}` dict pairs (calling is just a shorthand for `asInvokeArgument`)
+invoke(method, {
+alce.T[vtPointer]:asInvokeArgument(instance),
+alce.T[vtString]('my string'), -- lookup by vartype integer ID
+alce.T['single'](3.14159), -- lookup by basic type name
+alce.T['vtSingle'](6.28318) -- lookup by vartype string
+})
+```
+
+### alce.src.t.1
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.2
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.3
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.4
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.5
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.0
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.byte
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.qword
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.unsafeFromMono
+
+returns a VTypeHelper from a monoType, with a warning if it exceeds the lookup key limit
+
+**Returns:** `VTypeHelper`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| monoType | rough type | Yes |  any - the monoType to convert from |
+
+
+### alce.src.t.dword
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.12
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.vtDouble
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.vtWord
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.vtSingle
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.vtByte
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.vtPointer
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.fromMono
+
+returns a VTypeHelper from a monoType with a bounds-checking assertion
+
+**Returns:** `VTypeHelper`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| monoType | rough type | Yes |  any - the monoType to convert from |
+
+
+### alce.src.t.single
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.vtDword
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.double
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.vtQword
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.word
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+### alce.src.t.pointer
+
+For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
+
+## alce.src.mono
+
+Mono porcelain helpers for ergonomic interaction with Mono types.
+
+### alce.src.mono.Class
+
+A representation of a mono class type which will fetch, sort, and process its methods and fields into appropriate subtables.
+
+### alce.src.mono.Class.new
+
+creates a new mono class instance
+
+**Returns:** `Class`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| getParents | boolean | No |  whether to get parents |
+| assemblyNameOrImage | unknown | Yes |  |
+| namespace | string | No |  the namespace of the mono class |
+| className | unknown | Yes |  |
+
+
+### alce.src.mono.Class.instance
+
+creates a proxy object (ObjectAlias) for an instance of this class
+
+**Returns:** `ObjectAlias`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| baseAddress | unknown | Yes |  |
+
+
+### alce.src.mono.Class.instanceFrom
+
+convenient shorthand for self:instance(alce.safeChain(...))
+
+**Returns:** `ObjectAlias`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.mono.T.List.iterator
+
+Returns an iterator which returns the value of the list item from first to end.
+
+**Returns:** `function`:  an iterator over the list
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| first | offset | No |  starting index |
+| last | offset | No |  ending index |
+
+
+### alce.src.mono.T.List.size
+
+Returns the number of items in the list.
+
+**Returns:** `integer`:  the number of items in the list
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.mono.T.List.new
+
+Creates a new T.List representation at the given baseAddress.
+
+**Returns:** `T.List`:  a new T.List instance
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| indexBy | offset | No |  index increment |
+| baseAddress | address | Yes |  the base address |
+| offsetSize | offset | No |  offset to size |
+| indexFrom | offset | No |  starting index |
+| offsetItems | offset | No |  offset to items |
+
+
+### alce.src.mono.T.List.instanceIterator
+
+Convenience method wraps the result of the iterator in `alceClass:instance`, returning object instance aliases rather than addresses.
+
+**Returns:** `function`:  an iterator over object instances
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| last | offset | No |  ending index |
+| alceClass | table | Yes |  the alce class with an instance method |
+| first | offset | No |  starting index |
+
+
+### alce.src.mono.T.List.newFromChain
+
+Convenience constructor that returns new T.List that aliases the result from `readPointerChain(...)`
+
+**Returns:** `T.List`:  a new T.List instance
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.mono.T.List.atUnsafe
+
+Returns address of the Nth element at index (starting from zero) without bounds checking.
+
+**Returns:** `address`:  the address of the Nth element
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| index | integer | Yes |  the index of the element |
+
+
+### alce.src.mono.T.List.at
+
+Returns address of the Nth element at index (starting from zero) with bounds checking.
+
+**Returns:** `address`:  the address of the Nth element
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| index | integer | Yes |  the index of the element |
+
+
+### alce.src.mono.Method
+
+A representation of, and call-abstraction for, mono methods.
+
+### alce.src.mono.Method.new
+
+creates a new mono method instance
+
+**Returns:** `Method`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| methodID | unknown | Yes |  |
+| flags | integer | Yes |  the flags of the mono method |
+| name | string | Yes |  the name of the mono method |
+
+
+### alce.src.mono.Method.isStatic
+
+checks if the method is static
 
 **Returns:** `boolean`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| value | any | No |  |
 
 
-### alce.src.validators.isTable
+### alce.src.mono.Method.getAttributes
 
-checks if value is a table
+gets the names of global monoscript.lua constants representing the method attributes
 
-**Returns:** `boolean`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| value | any | No |  |
-
-
-### alce.src.validators.isBetween
-
-checks if value is between minimum and maximum
-
-**Returns:** `boolean`
+**Returns:** `array`:  the list of `METHOD_ATTRIBUTE_...`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| maximum | number | No |  |
-| minimum | number | No |  |
-| value | any | No |  |
 
 
-### alce.src.validators.isNonEmptyString
+### alce.src.mono.Method.call
 
-checks if value is a non-empty string
-
-**Returns:** `boolean`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| value | any | No |  |
-
-
-### alce.src.validators.isNonBlankString
-
-checks if value is a non-blank string
-
-**Returns:** `boolean`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| value | any | No |  |
-
-
-### alce.src.validators.isEmptyTable
-
-checks if value is an empty table
-
-**Returns:** `boolean`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| value | any | No |  |
-
-
-### alce.src.validators.ncheck
-
-passthru negation-assert with source line (checks negative, e.g. assert(not value) or assert(not optional_checker(value)))
+invokes the method after safety checks and argument processing
 
 **Returns:** `any`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| optional_checker | any | No |  |
-| value | any | No |  |
+| ... | any | No |  positional arguments |
+| maybe_instance | number | No |  optional instance address |
 
 
-### alce.src.validators.hasFlag
+### alce.src.mono.Method.compile
 
-equivalent to (flags & flag) == flag
+compiles the method for invocation
+
+**Returns:** `number`:  the compiled address
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.mono.Method.init
+
+initializes a mono method
+
+**Returns:** `self`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| methodID | unknown | Yes |  |
+| flags | integer | Yes |  the flags of the mono method |
+| name | string | Yes |  the name of the mono method |
+
+
+### alce.src.mono.Method.callUnsafe
+
+invokes the method without safety checks. Arguments must be in CE's invoke format
+
+**Returns:** `any, string, number`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| maybe_args | table | No |  optional arguments table |
+| maybe_instance | number | No |  optional instance address |
+
+
+### alce.src.mono.init
+
+Helper that asserts the process is attached and tries to launch the mono data collector if it's not connected already.
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.mono.ClassTable
+
+A table that loads and holds the mono classes you specify, associated by name, in the form of alce.mono.Class
+
+### alce.src.mono.ClassTable.unload
+
+unloads the class table
+
+**Returns:** `self`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.mono.ClassTable.new
+
+creates a new mono class table instance
+
+**Returns:** `ClassTable`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| keyPrefixNamespace | string | Yes |  prefix for namespace names |
+| keyPrefixAssembly | string | Yes |  prefix for assembly names |
+
+
+### alce.src.mono.ClassTable.add
+
+accepts explicit add({ {image, class[, namespace]}, ... })
+
+**Returns:** `self`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| targets | table | Yes |  list of targets to add |
+
+
+### alce.src.mono.ClassTable.clear
+
+clears the target list and unloads if necessary
+
+**Returns:** `self`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.mono.ClassTable.loadWithParents
+
+convenience shorthand for self:load({ getParents = true })
+
+**Returns:** `self`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+
+
+### alce.src.mono.ClassTable.load
+
+loads the classes specified in the target list
+
+**Returns:** `self`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| getParents | boolean | No |  whether to get parents |
+
+
+### alce.src.mono.ClassTable.addFromImage
+
+convenience abstraction: addFromImage(image, (class | {class, namespace}), ...)
+
+**Returns:** `self`
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| targets | table | Yes |  list of targets |
+| image | unknown | Yes |  |
+
+
+### alce.src.mono.ClassTable.isLoaded
+
+checks if the class table is loaded
 
 **Returns:** `boolean`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| flag | number | No |  |
-| flags | number | No |  |
 
 
-### alce.src.validators.isNonEmptyTable
+### alce.src.mono_plumbing.getClassEx
 
-checks if value is a non-empty table
+finds a class by name in a specific assembly and namespace
 
-**Returns:** `boolean`
+**Returns:** `table|nil`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| value | any | No |  |
+| assemblyNameOrImage | unknown | Yes |  |
+| namespace | string | No |  |
+| className | unknown | Yes |  |
 
 
-### alce.src.validators.isOffsetlike
+### alce.src.mono_plumbing.ObjectAlias
 
-checks that the value isNonNegativeInteger and less than optional_tooFarBoundary (or alce.cfg.isOffset_tooFarBoundary)
+creates a proxy object for a mono object
 
-**Returns:** `boolean`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| optional_tooFarBoundary | number | No |  |
-| value | any | No |  |
-
-
-### alce.src.validators.isNonNegativeFloat
-
-checks if value is a non-negative float
-
-**Returns:** `boolean`
+**Returns:** `proxy object`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| value | any | No |  |
+| alceClass | unknown | Yes |  |
+| baseAddress | unknown | Yes |  |
 
 
-### alce.src.validators.isAddresslike
+### alce.src.mono_plumbing.getProcessedMethods
 
-checks that the value isInteger and greater than optional_nearNullBoundary (or alce.cfg.isAddress_nearNullBoundary) and less than optional_userspaceBoundary (or alce.cfg.isAddress_userspaceBoundary)
+enumerates and processes methods for a class
 
-**Returns:** `boolean`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| optional_nearNullBoundary | number | No |  |
-| optional_userspaceBoundary | number | No |  |
-| value | any | No |  |
-
-
-### alce.src.validators.isNonNegativeInteger
-
-checks if value is a non-negative integer
-
-**Returns:** `boolean`
+**Returns:** `table|nil`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| value | any | No |  |
+| getParents | unknown | No |  |
+| hierarchy | unknown | No |  |
+| classID | unknown | Yes |  |
 
 
-### alce.src.validators.isCallable
+### alce.src.mono_plumbing.sortByHierarchy
 
-checks if value is callable
-
-**Returns:** `boolean`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| value | any | No |  |
-
-
-### alce.src.validators.isInteger
-
-checks if value is an integer
-
-**Returns:** `boolean`
+sorts an array of members by parent hierarchy, from parent to child
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| value | any | No |  |
+| array | table | Yes |  |
+| hierarchy | unknown | Yes |  |
 
 
-### alce.src.validators.isFloat
+### alce.src.mono_plumbing.getClass
 
-checks if value is a float
+returns the class handle for a given class
 
-**Returns:** `boolean`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| value | any | No |  |
-
-
-### alce.src.validators.isPositiveInteger
-
-checks if value is a positive integer
-
-**Returns:** `boolean`
+**Returns:** `number|nil`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| value | any | No |  |
+| assemblyNameOrImage | any | Yes |  |
+| namespace | string | No |  |
+| className | string | Yes |  |
 
 
-### alce.src.validators.check
+### alce.src.mono_plumbing.getImage
 
-passthru assert with source line (checks positive, e.g. assert(value) or assert(optional_checker(value)))
+gets Image by assemblyName
 
-**Returns:** `any`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| optional_checker | any | No |  |
-| value | any | No |  |
-
-
-### alce.src.validators.isZeroEmptyOrNil
-
-checks if value is zero, empty table, blank string, or nil
-
-**Returns:** `boolean`
+**Returns:** `number|nil`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| value | any | No |  |
+| assemblyName | string | Yes |  |
+| enumeratedAssemblies | unknown | No |  |
 
 
-### alce.src.validators.isSignedOffsetlike
+### alce.src.mono_plumbing.method_getSignature
 
-checks that the value isInteger and within positive and negative optional_tooFarBoundary (or alce.cfg.isOffset_tooFarBoundary)
+returns the signature of a method
 
-**Returns:** `boolean`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| optional_tooFarBoundary | number | No |  |
-| value | any | No |  |
-
-
-### alce.src.printers.prettyprint
-
-pretty-stringifies, concatenates, and prints input
-
-**Returns:** `nil`
+**Returns:** `table`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| args | any... | Yes |  |
+| methodID | unknown | Yes |  |
+| methodName | string | No |  |
 
 
-### alce.src.printers.inspectKeys
+### alce.src.mono_plumbing.class_getParentHierarchy
 
-print a sorted array of the table's keys
+returns array of class IDs ordered from parent to child
 
-**Returns:** `nil`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| optional_title | string|nil | No |  |
-| tbl | table | Yes |  |
-
-
-### alce.src.printers.warn
-
-print message with source linenumber only if alce.cfg.warn_print is `true`
-
-**Returns:** `nil`
+**Returns:** `table`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| args | any... | Yes |  |
+| classID | unknown | Yes |  |
 
 
-### alce.src.printers.debug
+### alce.src.mono_plumbing.invoke
 
-print message with source linenumber only if alce.cfg.debug_print is `true`
+invokes a mono method
 
-**Returns:** `nil`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| args | any... | Yes |  |
-
-
-### alce.src.printers.inspect
-
-Prints the table formatted by fmt.table
-
-**Returns:** `nil`
+**Returns:** `any|nil, string|nil, string|nil`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| optional_title | string|nil | No |  |
-| tbl | table | Yes |  |
 
 
-### alce.src.fmt.pretty
+### alce.src.mono_plumbing.init
 
-string: single line, unless value is a table and optional_printFullTable is true.
+initializes mono state
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| optional_printFullTable | boolean | No |  |
-| value | any | No |  |
 
 
-### alce.src.fmt.address
+### alce.src.mono_plumbing.getProcessedFields
 
-`alce.fmt.hex(value, true, false)` padded to address length
+enumerates and processes fields for a class
 
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| value | number | No |  |
-
-
-### alce.src.fmt.hex
-
-string: 0x prefixed hexadecimal string representation
+**Returns:** `table|nil`
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| optional_withPadding | boolean | No |  |
-| optional_useNativeEndian | boolean | No |  |
-| value | number | No |  |
+| getParents | boolean | No |  |
+| hierarchy | unknown | No |  |
+| keepFields | boolean | No |  |
+| keepMetadata | boolean | No |  |
+| classID | any | Yes |  |
 
 
-### alce.src.fmt.table
+## alce.src.monoscript
 
-string: the human-readable representation of the table
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| internal_path | string | No |  |
-| tbl | table | No |  |
-| optional_depthLimit | number | No |  |
-| optional_dontSortKeys | boolean | No |  |
-| internal_depth | number | No |  |
-| optional_keysToIgnore | table | No |  |
-| internal_seen | table | No |  |
-| optional_dontToString | boolean | No |  |
-
-
-### alce.src.fmt.sanitizeSymbolName
-
-string: the input string with non-alphanumeric replaced with underscores
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| str | string | No |  |
-
-
-### alce.src.fmt.binary
-
-string: `0b` prefixed big-endien binary string representation in groups of 8
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| optional_useDouble | boolean | No |  |
-| optional_useNativeEndian | boolean | No |  |
-| value | number | No |  |
-
-
-### alce.src.fmt.titleCase
-
-string: "title case" -> "Title Case"
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| str | string | No |  |
-
+Collection related to global constants defined in CE's `monoscript.lua`
+Groups:
+- `monotype`
+- `fieldAttribute`
+- `methodAttribute`
+Each group's dict contains the string `prefix` of the global constants, an array of `names` and a `nameLookup` dict of names keyed by their value.
+Note: For each name string, you can get its value by `_G[name]`. For some monoTypes, `monoscript.lua` provides C-style type names via `monoTypeToCStringLookup[name]`
 
 ## alce.src.cheat_table
 
@@ -637,24 +1423,33 @@ Hooks `onMemRecPreExecute` and `onMemRecPostExecute` in order to provide the fol
 
 finds the MR by description then calls alce.cheattable.clearChildren
 
-**Returns:** `none`
-
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| desc | string | Yes |  the description of the memory record to find |
 | addressList | AddressList | No |  optional address list to search in |
+| desc | string | Yes |  the description of the memory record to find |
 
 
-### alce.src.cheat_table.disableAfterSuccess
+### alce.src.cheat_table.clearChildren
 
-Makes disableWithoutExecute() be called on the next MemoryRecord script that runs successfully.
-Can be used at the bottom of an [ENABLE] section to turn a script into a momentary button rather than toggle.
-
-**Returns:** `none`
+destroy's all children of the given memoryRecord
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| disableBeep | boolean | No |  whether to disable the beep when the script runs successfully |
+| memoryRecord | MemoryRecord | Yes |  the memory record whose children should be destroyed |
+
+
+### alce.src.cheat_table.createHeader
+
+Creates a new Group Header MemoryRecord
+
+**Returns:** `MemoryRecord`:  the newly created MemoryRecord
+
+| Argument | Type | Required | Description |
+| --- | --- | --- | --- |
+| showCollapseButtons | boolean | No |  whether to show collapse buttons on the header |
+| parent | MemoryRecord | No |  the parent memory record to attach the new header to |
+| description | string | No |  the description of the new header |
+| saveToTable | boolean | No |  whether the created header should be saved to the table |
 
 
 ### alce.src.cheat_table.createRecord
@@ -681,118 +1476,26 @@ dropDownSettings = ddsettings
 print('the address of mode is ' .. newmr.AddressString)
 ```
 
-**Returns:** `the newly created MemoryRecord`
+**Returns:** `MemoryRecord`:  the newly created MemoryRecord
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| description | string | No |  the description of the new memory record |
-| dropDownSettings | unknown | No |  |
-| parent | MemoryRecord | No |  the parent memory record to attach the new record to |
+| dropDownSettings | table | No |  dropdown settings (options or optionsFrom) |
 | saveToTable | boolean | No |  whether the created record should be saved to the table |
+| offsets | table | No |  an array of integer offsets from address |
 | vtype | value type | No |  the value type of the new memory record (e.g., vtByte, vtDword) |
-| address | unknown | No |  |
-| offsets | unknown | No |  |
+| parent | MemoryRecord | No |  the parent memory record to attach the new record to |
+| description | string | No |  the description of the new memory record |
+| address | address | No |  the memory address or address-like string |
 
 
-### alce.src.cheat_table.createHeader
+### alce.src.cheat_table.disableAfterSuccess
 
-Creates a new Group Header MemoryRecord
-
-**Returns:** `the newly created MemoryRecord`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| showCollapseButtons | boolean | No |  whether to show collapse buttons on the header |
-| description | string | No |  the description of the new header |
-| saveToTable | boolean | No |  whether the created header should be saved to the table |
-| parent | MemoryRecord | No |  the parent memory record to attach the new header to |
-
-
-### alce.src.cheat_table.clearChildren
-
-destroy's all children of the given memoryRecord
-
-**Returns:** `none`
+Makes disableWithoutExecute() be called on the next MemoryRecord script that runs successfully.
+Can be used at the bottom of an [ENABLE] section to turn a script into a momentary button rather than toggle.
 
 | Argument | Type | Required | Description |
 | --- | --- | --- | --- |
-| memoryRecord | MemoryRecord | Yes |  the memory record whose children should be destroyed |
-
-
-## alce.src.vt
-
-a table of various CE type helpers. They can be useful on their own, but they mainly exist to be utilized by the user-friendly `alce.vt.VTypeHelper` instances in `alce.T`
-- `vt.typeStrings`: array of CE type strings (e.g. string 'vtByte', 'vtDword', 'vtPointer')
-- `vt.size`: dict mapping CE's vt types and their respective sizes in bytes (accounts for 32/64bit processes; no support for 16bit addressing)
-- `vt.read`: dict mapping CE's vt types and their respective read functions (e.g. [vdDword] is readInteger)
-- `vt.write`: mapping of CE's vt types and their respective write functions (e.g. [vdDword] is writeInteger)
-
-### alce.src.vt.VTypeHelper
-
-For working with a vartype such as: finding its monotypes, reading and writing, and formatting invoke-style argument tables.
-
-### alce.src.vt.VTypeHelper.getMonotypes
-
-returns the monotypes associated with the VType
-
-**Returns:** `nil or array of integers`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-
-
-### alce.src.vt.VTypeHelper.write
-
-writes a value to the specified address using the VType
-
-**Returns:** `boolean`:  whether or not it succeeded
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| value | any value | Yes |  the value to write |
-| address | memory address | Yes |  the address to write to |
-
-
-### alce.src.vt.VTypeHelper.read
-
-reads a value from the specified address using the VType
-
-**Returns:** `nil or the value`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| address | memory address | Yes |  the address to read from |
-
-
-### alce.src.vt.VTypeHelper.asInvokeArgument
-
-formats the VType and a value for invoking methods
-
-**Returns:** `dict {type=, value=}`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| value | any value | Yes |  the value to wrap |
-
-
-### alce.src.vt.VTypeHelper.getMonotypesAsStrings
-
-returns a sorted array of strings representing the monotypes
-
-**Returns:** `nil or array of strings`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-
-
-### alce.src.vt.VTypeHelper.new
-
-creates a new VType helper
-
-**Returns:** `VType`
-
-| Argument | Type | Required | Description |
-| --- | --- | --- | --- |
-| basicTypeString | basic type string | Yes |  the name of the type without prefix (e.g. 'dword') |
+| disableBeep | boolean | No |  whether to disable the beep when the script runs successfully |
 
 

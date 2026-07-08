@@ -131,8 +131,8 @@ local function traverse(ns, full_path, level)
                     end
                     output = output .. string.format("**Returns:** %s\n\n", ret_text)
                 end
-                if v.schema then
-                    output = output .. parse_schema(v.schema) .. "\n\n"
+                if v.parameters then
+                    output = output .. parse_schema(v.parameters) .. "\n\n"
                 end
             elseif v.__doc or (type(v) == "table" and next(v) ~= nil) then
                 -- Recurse into tables that are likely modules or namespaces
