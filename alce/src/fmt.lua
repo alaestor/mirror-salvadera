@@ -1,5 +1,5 @@
-local fn = require("alce.src../fn").fn
-local validators = require("alce.src../validators")
+local fn = require("./fn").fn
+local validators = require("./validators")
 
 local function byte_to_bits(byte)
     local bits = {}

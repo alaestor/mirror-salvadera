@@ -1,9 +1,9 @@
-local fn = require("alce.src../fn").fn
-local member_fn = require("alce.src../fn").member_fn
-local validators = require("alce.src../validators")
-local alce = require("alce.src../globals")
-local mono_plumbing = require("alce.src../mono_plumbing")
-local mono_t = require("alce.src../mono_t")
+local fn = require("./fn").fn
+local member_fn = require("./fn").member_fn
+local validators = require("./validators")
+local alce = require("./globals")
+local mono_plumbing = require("./mono_plumbing")
+local mono_t = require("./mono_t")
 
 local mono = {
     __doc = [[Mono porcelain helpers for ergonomic interaction with Mono types.]],

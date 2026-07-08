@@ -1,7 +1,7 @@
-local fn = require("alce.src../fn").fn
-local validators = require("alce.src../validators")
-local alce = require("alce.src../globals")
-local T = require("alce.src../t")
+local fn = require("./fn").fn
+local validators = require("./validators")
+local alce = require("./globals")
+local T = require("./t")
 
 local mono_plumbing = {}
 

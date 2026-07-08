@@ -1,6 +1,6 @@
-local fn = require("alce.src../fn").fn
-local alce = require("alce.src../globals")
-local validators = require("alce.src../validators")
+local fn = require("./fn").fn
+local alce = require("./globals")
+local validators = require("./validators")
 
 function onMemRecPreExecute(memrec, newState)
     if memrec.Type == vtAutoAssembler then

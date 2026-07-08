@@ -1,4 +1,4 @@
-local alce = require("alce.src../globals")
+local alce = require("./globals")
 
 alce.monoscript = {
     __doc = [[
