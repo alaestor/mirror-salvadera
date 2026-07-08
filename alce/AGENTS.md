@@ -55,7 +55,7 @@ end)
 ### Running Tests
     
 Tests are executed via the Nix flake:
-- Raw source tests: `nix run .#test` (Note: these may fail if `./` requires are used without path adjustment)
+- Raw source tests: `nix run .#test` (Uses a shim to resolve relative requires for luapack compatibility)
 - Bundled library tests: `nix run .#test_bundle` (Validates the final `alce.lua` bundle)
     
 To enable detailed output during development, set the `ALCE_VERBOSE` environment variable:

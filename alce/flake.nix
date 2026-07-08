@@ -64,9 +64,9 @@
               text = ''
                 set -euo pipefail
 
-                export LUA_PATH="../?.lua;;"
+                export LUA_PATH="src/?.lua;tools/?.lua;tests/?.lua;;"
 
-                find ./tests/ -name '*.test.lua' ! -name 'bundle.test.lua' -exec sh -c 'lua "$1"' _ {} \;
+                find ./tests/ -name '*.test.lua' ! -name 'bundle.test.lua' -exec sh -c 'lua tests/test_runner.lua "$1"' _ {} \;
               '';
             }
           );
@@ -104,22 +104,28 @@
           src = ./.;
           buildInputs = [
             self'.packages.luapack
+            self'.packages.minilua
             pkgs.perl
           ];
           buildPhase = ''
+            # Pack main.lua into a monolithic file, resolving all relative requires `./`
             ${pkgs.lib.getExe self'.packages.luapack} -B -f src/main.lua -o alce.lua
-            cp alce.lua alce-full.lua
-            # Strip documentation metadata for production release
-            # Remove __doc and __doc_returns multiline blocks
-            # Matches the key, the multiline string, and the trailing comma/semicolon/whitespace
-            #perl -i -0777 -pe 's/\s*__doc(_returns)?\s*=\s*\[\[[\s\S]*?\]\]\s*[,;]?\s*//g' alce.lua
-            # Remove __doc_verbatim assignments
-            #perl -i -pe 's/\s*__doc_verbatim\s*=\s*[^,;\n}]*[,;]?\s*(--.*)?//g' alce.lua
+            #cp alce.lua alce-full.lua
+
+            # Strip documentation metadata for production release (__doc, __doc_returns, __doc_verbatim)
+            # Matches the key, the multiline string, assignment, and the trailing comma/semicolon/whitespace
+            perl -i -0777 -pe 's/\s*__doc(_returns)?\s*=\s*\[\[[\s\S]*?\]\]\s*[,;]?\s*//g' alce.lua
+            perl -i -pe 's/\s*__doc_verbatim\s*=\s*[^,;\n}]*[,;]?\s*(--.*)?//g' alce.lua
+            #cp alce.lua alce-stripped.lua
+
+            # Minify
+            minilua --quiet --no-banner --in-place alce.lua
           '';
           installPhase = ''
             mkdir -p $out
-            cp alce.lua $out/
-            #cp alce-full.lua $out/
+            #mv alce-full.lua $out/
+            #mv alce-stripped.lua $out/
+            mv alce.lua $out/
           '';
         };
 

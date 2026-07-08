@@ -1,6 +1,6 @@
 -- Global namespace and configuration for libALCE
 
-alce = {
+alce = alce or {
     __doc = [[
 # libALCE
 
@@ -19,7 +19,6 @@ Intended to be used in the table's lua script, or parted out as needed.
     - `isAddress_userspaceBoundary32` defaults to a "3g split"; set `0x7FFFFFFF` for 2GB
     - `isOffset_tooFarBoundary` expects offsets to be < 4096 bytes
     - `isAddress_userspaceBoundary64` is a number that came to me in a dream
-
     ]],
         __doc_verbatim = true, -- print KV pairs verbatim in documentation
 
