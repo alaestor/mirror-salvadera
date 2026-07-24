@@ -1,0 +1,21 @@
+#include <QApplication>
+#include <QLabel>
+
+// TODO: more complex example with ui files and cpp1 sources?
+
+main: (args) -> int = {
+	app: QApplication = (args.argc, args.argv);
+
+	window: QWidget = ();
+	window.setWindowTitle("This window was created with ...");
+
+	label: QLabel = (
+		"Qt6,\nC++23, Syntax 2 (via cppfront)\nCMake\nNix",
+		window&
+	);
+
+	label.resize(350, 100);
+	window.show();
+
+	return app.exec();
+}
